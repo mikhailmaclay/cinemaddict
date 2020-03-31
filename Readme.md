@@ -1,7 +1,7 @@
 # Личный проект «Киноман» [![Build status][travis-image]][travis-url]
 
 * Студент: [Михаил Маклай](https://up.htmlacademy.ru/ecmascript/11/user/847253).
-* Наставник: `Неизвестно`.
+* Наставник: `Кексобот`.
 
 ---
 
