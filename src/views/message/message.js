@@ -12,14 +12,10 @@ export default class MessageView extends View {
     return createMessageTemplate(this._message);
   }
 
-  get message() {
-    return this._message;
-  }
-
   set message(message) {
     this._message = message;
 
-    this._rerender();
+    this.__rerender();
   }
 }
 

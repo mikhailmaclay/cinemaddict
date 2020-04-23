@@ -28,13 +28,13 @@ export default class FilmListView extends View {
   set films(films) {
     this._films = films;
 
-    this._rerender();
+    this.__rerender();
   }
 
   set filmCardsCount(count) {
     this._filmCardsCount = count;
 
-    this._rerender();
+    this.__rerender();
   }
 
   render(targetElement, position = RenderPosition.END) {
@@ -43,17 +43,17 @@ export default class FilmListView extends View {
     super.render(targetElement, position);
   }
 
-  _selectElements() {
+  __selectElements() {
     this._showMoreElement = this.element.querySelector(`.films-list__show-more`);
   }
 
-  _addEventListeners() {
+  __addEventListeners() {
     if (this._showMoreElement) {
       this._showMoreElement.addEventListener(`click`, this.__handleShowMoreClick);
     }
   }
 
-  _removeEventListeners() {
+  __removeEventListeners() {
     if (this._showMoreElement) {
       this._showMoreElement.removeEventListener(`click`, this.__handleShowMoreClick);
     }

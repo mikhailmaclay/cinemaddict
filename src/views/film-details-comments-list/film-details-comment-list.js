@@ -7,6 +7,7 @@ export default class FilmDetailsCommentListView extends View {
 
     this._comments = comments;
   }
+
   get template() {
     return createFilmDetailsCommentListTemplate(this._comments);
   }

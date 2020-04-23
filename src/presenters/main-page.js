@@ -16,8 +16,8 @@ export default class MainPagePresenter extends FilmCatalogPresenter {
   render() {
     super.render();
 
-    const topRatedFilms = selectTopRatedFilms(this._filmsModel.state);
-    const mostCommentedFilms = selectMostCommentedFilms(this._filmsModel.state);
+    const topRatedFilms = selectTopRatedFilms(this.__filmsModel.state);
+    const mostCommentedFilms = selectMostCommentedFilms(this.__filmsModel.state);
 
     if (topRatedFilms && topRatedFilms.length) {
       this._topRatedFilmListView.films = topRatedFilms;

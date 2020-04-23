@@ -22,7 +22,7 @@ export default class FilmDetailsView extends View {
   set film(film) {
     this._film = film;
 
-    this._rerender();
+    this.__rerender();
   }
 
   render(targetElement, position = RenderPosition.END) {
@@ -37,8 +37,12 @@ export default class FilmDetailsView extends View {
     document.body.style.overflow = ``;
   }
 
-  _addEventListeners() {
+  __addEventListeners() {
     window.addEventListener(`keydown`, this.__handleWindowKeyDown);
+  }
+
+  __removeEventListeners() {
+    window.removeEventListener(`keydown`, this.__handleWindowKeyDown);
   }
 
   __handleWindowKeyDown(evt) {

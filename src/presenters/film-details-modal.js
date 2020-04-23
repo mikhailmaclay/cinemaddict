@@ -5,7 +5,7 @@ export default class FilmDetailsModalPresenter {
     this._container = container;
 
     // Models
-    this._filmsModel = filmsModel;
+    this.__filmsModel = filmsModel;
 
     // Views
     this._filmDetailsView = new FilmDetailsView(null);
@@ -14,7 +14,7 @@ export default class FilmDetailsModalPresenter {
   render(filmID) {
     const filmIndex = filmID - 1;
 
-    this._filmDetailsView.film = this._filmsModel.state[filmIndex];
+    this._filmDetailsView.film = this.__filmsModel.state[filmIndex];
 
     this._filmDetailsView.render(this._container);
   }

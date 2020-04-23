@@ -21,6 +21,6 @@ export default class MainNavigationView extends View {
   set filmCountsByFilterCategories(filterCategories) {
     this._filmCountsByFilterCategories = filterCategories;
 
-    this._rerender();
+    this.__rerender();
   }
 }

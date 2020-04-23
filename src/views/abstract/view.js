@@ -16,7 +16,7 @@ export default class View {
 
   get element() {
     if (!this._element) {
-      this.__createElement();
+      this._createElement();
     }
 
     return this._element;
@@ -38,17 +38,17 @@ export default class View {
         return;
     }
 
-    this._selectElements();
-    this._addEventListeners();
+    this.__selectElements();
+    this.__addEventListeners();
   }
 
   remove() {
-    this._removeEventListeners();
+    this.__removeEventListeners();
     this.element.remove();
-    this.__removeElement();
+    this._removeElement();
   }
 
-  _rerender() {
+  __rerender() {
     if (!this._element) {
       return;
     }
@@ -56,30 +56,30 @@ export default class View {
     const oldElement = this._element;
     const parent = oldElement.parentElement;
 
-    this._removeEventListeners();
-    this.__removeElement();
+    this.__removeEventListeners();
+    this._removeElement();
 
     const newElement = this.element;
 
     parent.replaceChild(newElement, oldElement);
 
-    this._selectElements();
-    this._addEventListeners();
+    this.__selectElements();
+    this.__addEventListeners();
   }
 
-  _selectElements() {
+  __selectElements() {
     return;
   }
 
-  _addEventListeners() {
+  __addEventListeners() {
     return;
   }
 
-  _removeEventListeners() {
+  __removeEventListeners() {
     return;
   }
 
-  __createElement() {
+  _createElement() {
     const element = document.createElement(`div`);
 
     element.innerHTML = this.template;
@@ -87,7 +87,7 @@ export default class View {
     this._element = element.firstElementChild;
   }
 
-  __removeElement() {
+  _removeElement() {
     this._element = null;
   }
 }

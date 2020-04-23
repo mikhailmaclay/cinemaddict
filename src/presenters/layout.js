@@ -17,7 +17,7 @@ export default class LayoutPresenter {
     this._container = container;
 
     // Models
-    this._filmsModel = filmsModel;
+    this.__filmsModel = filmsModel;
 
     // Views
     this._headerView = new HeaderView();
@@ -28,8 +28,8 @@ export default class LayoutPresenter {
   }
 
   render() {
-    this._mainNavigationView.filmCountsByFilterCategories = selectFilmCountsByFilterCategories(this._filmsModel.state);
-    this._footerView.filmsCount = Array.isArray(this._filmsModel.state) ? this._filmsModel.state.length : null;
+    this._mainNavigationView.filmCountsByFilterCategories = selectFilmCountsByFilterCategories(this.__filmsModel.state);
+    this._footerView.filmsCount = Array.isArray(this.__filmsModel.state) ? this.__filmsModel.state.length : null;
 
     this._headerView.render(this._container);
     this._profileView.render(this._headerView.element);

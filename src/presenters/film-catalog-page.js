@@ -18,9 +18,9 @@ export default class FilmCatalogPagePresenter extends LayoutPresenter {
   render() {
     super.render();
 
-    this._filmListView.films = this._filmsModel.handledState;
+    this._filmListView.films = this.__filmsModel.handledState;
 
-    if (this._filmsModel.state && this._filmsModel.state.length) {
+    if (this.__filmsModel.state && this.__filmsModel.state.length) {
       this._sortingView.render(this._mainView.element);
     }
 
