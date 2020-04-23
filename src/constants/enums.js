@@ -50,10 +50,10 @@ export const SearchRegExp = {
   SORTING_RATING: /sorting=rating/
 };
 
-// export const SortingType = {
-//   DATE: `date`,
-//   RATING: `rating`
-// };
+export const SortingType = {
+  DATE: `date`,
+  RATING: `rating`
+};
 
 export const HTTPMethod = {
   GET: `GET`,

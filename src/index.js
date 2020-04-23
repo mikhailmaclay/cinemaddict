@@ -12,6 +12,7 @@ import NotFoundPagePresenter from './presenters/not-found-page';
 import {FilmAdapter} from './utils/adapters';
 import createMockFilms from './mocks/films';
 import {filterFavoritesFilms, filterHistoryFilms, filterWatchlistFilms} from './utils/filtering';
+import {getSortingFunctionFromSearch} from './utils/url';
 
 const MOCK_FILMS_COUNT = 20;
 
@@ -30,19 +31,36 @@ Router.notFoundRoute = PathName.NOT_FOUND_PAGE;
 Router.addRoute(PathNameRegExp.MAIN_PAGE, () => {
   document.title = PageTitle.MAIN_PAGE;
 
+  const sortingFunction = getSortingFunctionFromSearch();
+
+  if (sortingFunction) {
+    filmsModel.addStateHandler(sortingFunction);
+  }
+
   mainPagePresenter.render();
 
-  return () => mainPagePresenter.remove();
+  return () => {
+    filmsModel.removeStateHandler(sortingFunction);
+
+    mainPagePresenter.remove();
+  };
 });
 
 Router.addRoute(PathNameRegExp.WATCHLIST_PAGE, () => {
   document.title = PageTitle.WATCHLIST_PAGE;
+
+  const sortingFunction = getSortingFunctionFromSearch();
+
+  if (sortingFunction) {
+    filmsModel.addStateHandler(sortingFunction);
+  }
 
   filmsModel.addStateHandler(filterWatchlistFilms);
 
   filmCatalogPagePresenter.render();
 
   return () => {
+    filmsModel.removeStateHandler(sortingFunction);
     filmsModel.removeStateHandler(filterWatchlistFilms);
 
     filmCatalogPagePresenter.remove();
@@ -52,11 +70,18 @@ Router.addRoute(PathNameRegExp.WATCHLIST_PAGE, () => {
 Router.addRoute(PathNameRegExp.HISTORY_PAGE, () => {
   document.title = PageTitle.HISTORY_PAGE;
 
+  const sortingFunction = getSortingFunctionFromSearch();
+
+  if (sortingFunction) {
+    filmsModel.addStateHandler(sortingFunction);
+  }
+
   filmsModel.addStateHandler(filterHistoryFilms);
 
   filmCatalogPagePresenter.render();
 
   return () => {
+    filmsModel.removeStateHandler(sortingFunction);
     filmsModel.removeStateHandler(filterHistoryFilms);
 
     filmCatalogPagePresenter.remove();
@@ -66,11 +91,18 @@ Router.addRoute(PathNameRegExp.HISTORY_PAGE, () => {
 Router.addRoute(PathNameRegExp.FAVORITES_PAGE, () => {
   document.title = PageTitle.FAVORITES_PAGE;
 
+  const sortingFunction = getSortingFunctionFromSearch();
+
+  if (sortingFunction) {
+    filmsModel.addStateHandler(sortingFunction);
+  }
+
   filmsModel.addStateHandler(filterFavoritesFilms);
 
   filmCatalogPagePresenter.render();
 
   return () => {
+    filmsModel.removeStateHandler(sortingFunction);
     filmsModel.removeStateHandler(filterFavoritesFilms);
 
     filmCatalogPagePresenter.remove();
@@ -83,7 +115,7 @@ Router.addRoute(PathNameRegExp.FILM_DETAILS_MODAL, (_, regExpResult) => {
   const film = filmsModel.state[filmIndex];
 
   if (!film) {
-    Router.replace(`/404`);
+    Router.replace(PathName.NOT_FOUND_PAGE);
 
     return;
   }
@@ -114,6 +146,14 @@ Router.addRoute(PathNameRegExp.NOT_FOUND_PAGE, () => {
   notFoundPagePresenter.render();
 
   return () => notFoundPagePresenter.remove();
+});
+
+window.addEventListener(`online`, () => {
+  document.title = document.title.replace(` [offline]`, ``);
+});
+
+window.addEventListener(`offline`, () => {
+  document.title += ` [offline]`;
 });
 
 /*
