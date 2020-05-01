@@ -1,29 +1,47 @@
 // Constants and utils
 import Config from './constants/config';
-import {PageTitle, PathName, PathNameRegExp} from './constants/enums';
+import {Notification, NotificationTimeValue, PageTitle, PathName, PathNameRegExp, TimeValue} from './constants/enums';
 import Router from './utils/router';
+import {Film} from './utils/adapters';
+import {filterFavoritesFilms, filterHistoryFilms, filterWatchlistFilms} from './utils/filtering';
+import {getSortingFunctionFromSearch} from './utils/url';
+import {convertMapToArray, reduceArrayToMapByID} from './utils/objects';
 //
 import FilmsModel from './models/films';
+import NotificationModel from './models/notification';
 import MainPagePresenter from './presenters/main-page';
 import FilmCatalogPagePresenter from './presenters/film-catalog-page';
 import FilmDetailsModalPresenter from './presenters/film-details-modal';
 import StatisticPagePresenter from './presenters/statistic-page';
 import NotFoundPagePresenter from './presenters/not-found-page';
-import {FilmAdapter} from './utils/adapters';
 import createMockFilms from './mocks/films';
-import {filterFavoritesFilms, filterHistoryFilms, filterWatchlistFilms} from './utils/filtering';
-import {getSortingFunctionFromSearch} from './utils/url';
+import './styles.scss';
 
 const MOCK_FILMS_COUNT = 20;
+const FAKE_REQUEST_TIME_VALUE = TimeValue.MILLISECOND.SECOND * 1.5;
+
+const loadFilms = () => {
+  return new Promise((resolve) => {
+    setTimeout(() => resolve(createMockFilms(MOCK_FILMS_COUNT)), FAKE_REQUEST_TIME_VALUE);
+  });
+};
+
+const loading = loadFilms().then((films) => {
+  filmsModel.state = films.map((film) => new Film(film)).reduce(reduceArrayToMapByID, {});
+});
 
 const filmsModel = new FilmsModel();
-filmsModel.state = createMockFilms(MOCK_FILMS_COUNT).map((film) => new FilmAdapter(film));
+filmsModel.addStateHandler(convertMapToArray);
 
-const mainPagePresenter = new MainPagePresenter(Config.ROOT, filmsModel);
-const filmCatalogPagePresenter = new FilmCatalogPagePresenter(Config.ROOT, filmsModel);
-const filmDetailsModalPresenter = new FilmDetailsModalPresenter(Config.ROOT, filmsModel);
-const statisticPagePresenter = new StatisticPagePresenter(Config.ROOT, filmsModel);
-const notFoundPagePresenter = new NotFoundPagePresenter(Config.ROOT, filmsModel);
+const notificationModel = new NotificationModel();
+
+notificationModel.set(NotificationTimeValue.LONG, ...Notification.WELCOME);
+
+const mainPagePresenter = new MainPagePresenter(Config.ROOT, filmsModel, notificationModel);
+const filmCatalogPagePresenter = new FilmCatalogPagePresenter(Config.ROOT, filmsModel, notificationModel);
+const filmDetailsModalPresenter = new FilmDetailsModalPresenter(Config.ROOT, filmsModel, notificationModel);
+const statisticPagePresenter = new StatisticPagePresenter(Config.ROOT, filmsModel, notificationModel);
+const notFoundPagePresenter = new NotFoundPagePresenter(Config.ROOT, filmsModel, notificationModel);
 
 Router.init();
 Router.notFoundRoute = PathName.NOT_FOUND_PAGE;
@@ -109,10 +127,16 @@ Router.addRoute(PathNameRegExp.FAVORITES_PAGE, () => {
   };
 });
 
-Router.addRoute(PathNameRegExp.FILM_DETAILS_MODAL, (_, regExpResult) => {
+function handleFilmDetailsModalEnter(_, regExpResult) {
   const {filmID} = regExpResult.groups;
-  const filmIndex = filmID - 1;
-  const film = filmsModel.state[filmIndex];
+
+  if (!filmID) {
+    Router.replace(PathName.NOT_FOUND_PAGE);
+
+    return;
+  }
+
+  const film = filmsModel.state && filmsModel.state[filmID];
 
   if (!film) {
     Router.replace(PathName.NOT_FOUND_PAGE);
@@ -122,7 +146,7 @@ Router.addRoute(PathNameRegExp.FILM_DETAILS_MODAL, (_, regExpResult) => {
 
   const filmTitle = film.filmInfo.title;
 
-  document.title = `${filmTitle} / ${PageTitle.MAIN_PAGE}`;
+  document.title = `${filmTitle} - ${PageTitle.MAIN_PAGE}`;
 
   filmDetailsModalPresenter.render(filmID);
 
@@ -130,7 +154,10 @@ Router.addRoute(PathNameRegExp.FILM_DETAILS_MODAL, (_, regExpResult) => {
   return () => {
     filmDetailsModalPresenter.remove();
   };
-});
+}
+
+// eslint-disable-next-line
+Router.addRoute(PathNameRegExp.FILM_DETAILS_MODAL, async (_, regExpResult) => await loading.then(() => handleFilmDetailsModalEnter(_, regExpResult)));
 
 Router.addRoute(PathNameRegExp.STATISTIC_PAGE, () => {
   document.title = PageTitle.STATISTIC_PAGE;
@@ -150,10 +177,14 @@ Router.addRoute(PathNameRegExp.NOT_FOUND_PAGE, () => {
 
 window.addEventListener(`online`, () => {
   document.title = document.title.replace(` [offline]`, ``);
+
+  notificationModel.set(NotificationTimeValue.LONG, ...Notification.CONNECTION_LOST);
 });
 
 window.addEventListener(`offline`, () => {
   document.title += ` [offline]`;
+
+  notificationModel.set(NotificationTimeValue.LONG, ...Notification.CONNECTION_RESTORED);
 });
 
 /*

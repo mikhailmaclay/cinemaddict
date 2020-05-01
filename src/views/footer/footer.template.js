@@ -1,4 +1,5 @@
 import {pluralize} from '../../utils/numbers';
+import './footer.styles.scss';
 
 const createFooterTemplate = (filmsCount) => {
   return (

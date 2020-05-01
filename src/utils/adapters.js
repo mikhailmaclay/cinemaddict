@@ -1,4 +1,7 @@
-export class FilmAdapter {
+// Libraries
+import {nanoid} from 'nanoid';
+
+export class Film {
   constructor(data) {
     this.id = data[`id`];
     this.comments = new Array(data[`comments`].length);
@@ -50,12 +53,31 @@ export class FilmAdapter {
         "description": this.filmInfo.description
       },
       "user_details": {
-        "personal_rating": this.userDetails.personalRating,
         "watchlist": this.userDetails.isInWatchlist,
         "already_watched": this.userDetails.isAlreadyWatched,
         "watching_date": this.userDetails.watchingDate,
         "favorite": this.userDetails.isFavorite
       }
+    };
+  }
+}
+
+export class Comment {
+  constructor(data) {
+    this.id = data[`id`] || nanoid();
+    this.author = data[`author`] || `Administrator`;
+    this.text = data[`comment`] || data.text;
+    this.date = data[`date`] || new Date().toISOString();
+    this.emotion = data[`emotion`];
+  }
+
+  getRaw() {
+    return {
+      "id": this.id,
+      "author": this.author,
+      "comment": this.text,
+      "date": this.date,
+      "emotion": this.emotion
     };
   }
 }

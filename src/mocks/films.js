@@ -1,8 +1,5 @@
 // Constants and utils
-import {getRandomNumberFromRange} from '../utils/randomizers';
-import {getRandomArrayValue} from '../utils/randomizers';
-import {getRandomDate} from '../utils/date';
-import {castLots} from '../utils/randomizers';
+import {castLots, getRandomArrayValue, getRandomDate, getRandomNumberFromRange} from '../utils/randomizers';
 
 const DESCRIPTION_SENTENCES = [
   `In a world where there is no place for justice, it’s hard to find the strength to stand up against the wheel of fate.`,
@@ -180,7 +177,6 @@ const createMockFilm = () => {
       "description": createDescription()
     },
     "user_details": {
-      "personal_rating": getRandomNumberFromRange(minRating, maxRating),
       "watching_date": getRandomDate(DateDifference.WATCH_DATE),
       "watchlist": castLots(),
       "already_watched": castLots(),

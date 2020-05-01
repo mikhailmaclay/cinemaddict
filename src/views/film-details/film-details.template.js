@@ -2,8 +2,7 @@
 import {formatDate, formatDuration} from '../../utils/date';
 import {DateFormat} from '../../constants/enums';
 //
-import createFilmDetailsCommentsListTemplate from '../film-details-comments-list/film-details-comment-list.template';
-import createFilmDetailsNewComment from '../film-details-new-comment/film-details-new-comment.template';
+import './film-details.styles.scss';
 
 const createFilmDetailsTemplate = (film) => {
   const {comments, filmInfo, userDetails} = film;
@@ -13,7 +12,7 @@ const createFilmDetailsTemplate = (film) => {
 
   return (
     `<section class="film-details">
-      <form class="film-details__inner" action="" method="get">
+      <div class="film-details__inner">
         <div class="form-details__top-container">
           <div class="film-details__close">
             <a href="/" class="film-details__close-btn">close</a>
@@ -77,7 +76,7 @@ const createFilmDetailsTemplate = (film) => {
             </div>
           </div>
 
-          <section class="film-details__controls">
+          <form class="film-details__controls">
             <input type="checkbox" class="film-details__control-input visually-hidden" id="watchlist" name="watchlist" ${isInWatchlist ? `checked` : ``}>
             <label for="watchlist" class="film-details__control-label film-details__control-label--watchlist">${isInWatchlist ? `In watchlist` : `Add to watchlist`}</label>
 
@@ -86,17 +85,15 @@ const createFilmDetailsTemplate = (film) => {
 
             <input type="checkbox" class="film-details__control-input visually-hidden" id="favorite" name="favorite" ${isFavorite ? `checked` : ``}>
             <label for="favorite" class="film-details__control-label film-details__control-label--favorite">${isFavorite ? `Favorite` : `Add to favorites`}</label>
-          </section>
+          </form>
         </div>
 
         <div class="form-details__bottom-container">
           <section class="film-details__comments-wrap">
-            <h3 class="film-details__comments-title">Comments: <span class="film-details__comments-count">${comments.length}</span></h3>
-            ${createFilmDetailsCommentsListTemplate(comments)}
-            ${createFilmDetailsNewComment()}
+            <h3 class="film-details__comments-title">Comments: <span class="film-details__comments-count">${comments && Object.values(comments).length}</span></h3>
           </section>
         </div>
-      </form>
+      </div>
     </section>`
   );
 };

@@ -3,3 +3,13 @@ export const bind = (thisArg, ...functions) => {
     thisArg[currentFunction.name] = currentFunction.bind(thisArg);
   });
 };
+
+export const callSafely = (...functions) => {
+  functions.forEach((func) => {
+    try {
+      func();
+    } catch (_) {
+      return;
+    }
+  });
+};

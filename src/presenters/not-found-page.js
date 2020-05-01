@@ -2,16 +2,17 @@ import LayoutPresenter from './layout';
 import MessageView from '../views/message/message';
 
 export default class NotFoundPagePresenter extends LayoutPresenter {
-  constructor(container, filmsModel) {
-    super(container, filmsModel);
+  constructor(container, filmsModel, notificationModel) {
+    super(container, filmsModel, notificationModel);
 
-    this._messageView = new MessageView(null);
+    this.__messageView = new MessageView(null);
   }
+
   render() {
     super.render();
 
-    this._messageView.message = `There is no any result.`;
+    this.__messageView.message = `There is no any result.`;
 
-    this._messageView.render(this._mainView.element);
+    this.__messageView.render(this.__mainView.element);
   }
 }

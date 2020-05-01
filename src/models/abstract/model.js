@@ -1,29 +1,33 @@
 // Constants and utils
 import {compose} from '../../utils/common';
 
-class Model {
+export default class Model {
   constructor() {
-    this._state = null;
+    this.__state = null;
     this._stateHandlers = new Set();
-    this._observers = new Set();
+    this._changeHandlers = new Set();
 
     if (new.target === Model) {
       throw new Error(`Can't instantiate Model, only concrete one.`);
     }
   }
 
-  set state(state) {
-    this._state = state;
+  set state(value) {
+    this.__state = value;
 
-    this._notifyObservers();
+    this.__callChangeHandlers();
   }
 
   get state() {
-    return this._state;
+    return this.__state;
   }
 
   get handledState() {
-    return compose(...this._stateHandlers)(this._state);
+    if (!this.__state) {
+      return null;
+    }
+
+    return compose(...this._stateHandlers)(this.__state);
   }
 
   addStateHandler(stateHandler) {
@@ -34,17 +38,17 @@ class Model {
     this._stateHandlers.delete(stateHandler);
   }
 
-  registerObserver(observer) {
-    this._observers.add(observer);
+  addChangeHandler(callback) {
+    this._changeHandlers.add(callback);
   }
 
-  removeObserver(observer) {
-    this._observers.delete(observer);
+  removeChangeHandler(callback) {
+    this._changeHandlers.delete(callback);
   }
 
-  _notifyObservers() {
-    this._observers.forEach((observer) => observer.update(this._state));
+  __callChangeHandlers() {
+    for (let changeHandler of this._changeHandlers) {
+      changeHandler();
+    }
   }
 }
-
-export default Model;

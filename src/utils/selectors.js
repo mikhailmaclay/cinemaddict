@@ -27,6 +27,10 @@ export const selectMostCommentedFilms = (films) => {
 };
 
 export const selectFilmCountsByFilterCategories = (films) => {
+  if (!films) {
+    return null;
+  }
+
   return films.reduce((filmCountsByFilterCategories, film) => {
     const {userDetails} = film;
     const {isInWatchlist, isAlreadyWatched, isFavorite} = userDetails;

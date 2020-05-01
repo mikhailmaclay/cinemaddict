@@ -1,0 +1,46 @@
+.notification {
+  position: fixed;
+  z-index: 1;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  min-height: 50px;
+  padding: 25px 0;
+  color: white;
+  background-color: #0f0f47;
+  background-image: linear-gradient(to right, black, transparent);
+  box-shadow: 0 0 5px 5px rgba(0, 0, 0, 0.5);
+}
+
+.notification__container {
+  position: relative;
+  width: 1200px;
+  margin: 0 auto;
+}
+
+.notification__heading {
+  font-size: 20px;
+  display: block;
+  margin-bottom: 10px;
+}
+
+.notification__text {
+  margin: 0;
+}
+
+.notification__close {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: -5px -10px;
+  padding: 5px 10px;
+  text-decoration: underline;
+  color: inherit;
+  border: none;
+  background-color: transparent;
+  transition: 100ms opacity;
+
+  &:active {
+    opacity: 0.3;
+  }
+}

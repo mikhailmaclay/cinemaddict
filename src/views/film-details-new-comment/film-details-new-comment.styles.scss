@@ -1,0 +1,28 @@
+.film-details__new-comment {
+  user-select: none;
+}
+
+.film-details__comment-input--error {
+  @keyframes error {
+    0% {
+      transform: rotate(0deg);
+    }
+
+    25% {
+      transform: rotate(-5deg);
+    }
+
+    50% {
+      transform: rotate(5deg);
+    }
+
+    100% {
+      transform: rotate(0deg);
+    }
+  }
+
+  animation-name: error;
+  animation-duration: 500ms;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}

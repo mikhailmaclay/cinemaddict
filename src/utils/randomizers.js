@@ -29,3 +29,20 @@ export const getRandomObjectValue = (object) => {
 
   return getRandomArrayValue(objectValues);
 };
+
+export const getRandomDate = (difference) => {
+  const date = new Date();
+  let sign;
+
+  if (difference < 0) {
+    sign = -1;
+  } else {
+    sign = castLots(1, -1);
+  }
+
+  difference = sign * getRandomNumberFromRange(0, Math.abs(difference));
+
+  date.setDate(date.getDate() + difference);
+
+  return date;
+};

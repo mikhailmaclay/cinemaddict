@@ -1,8 +1,6 @@
 // Constants and utils
 import {Emotion} from '../constants/enums';
-import {getRandomDate} from '../utils/date';
-import {getRandomObjectValue} from '../utils/randomizers';
-import {getRandomArrayValue} from '../utils/randomizers';
+import {getRandomArrayValue, getRandomDate, getRandomObjectValue} from '../utils/randomizers';
 
 const RANDOM_DATE_DIFFERENCE = -200;
 
@@ -33,11 +31,11 @@ let commentID = 1;
 
 const createComment = () => {
   return {
-    id: commentID++,
-    author: getRandomArrayValue(USER_NAMES),
-    text: getRandomArrayValue(COMMENT_SENTENCES),
-    date: getRandomDate(RANDOM_DATE_DIFFERENCE),
-    emotion: getRandomObjectValue(Emotion)
+    "id": commentID++,
+    "author": getRandomArrayValue(USER_NAMES),
+    "comment": getRandomArrayValue(COMMENT_SENTENCES),
+    "emotion": getRandomObjectValue(Emotion),
+    "date": getRandomDate(RANDOM_DATE_DIFFERENCE)
   };
 };
 

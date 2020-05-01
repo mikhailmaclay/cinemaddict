@@ -1,41 +1,52 @@
 // Constants and utils
+import {convertMapToArray} from '../utils/objects';
 import {selectMostCommentedFilms, selectTopRatedFilms} from '../utils/selectors';
+import {bind} from '../utils/components';
 //
 import FilmListView from '../views/film-list/film-list';
 import FilmCatalogPresenter from './film-catalog-page';
 
 export default class MainPagePresenter extends FilmCatalogPresenter {
-  constructor(container, filmsModel) {
-    super(container, filmsModel);
+  constructor(container, filmsModel, notificationModel) {
+    super(container, filmsModel, notificationModel);
 
-    // Views
-    this._topRatedFilmListView = new FilmListView(null, `Top rated`, true);
-    this._mostCommentedFilmListView = new FilmListView(null, `Most commented`, true);
+    this.__topRatedFilmListView = new FilmListView(null, `Top rated`, true);
+    this.__mostCommentedFilmListView = new FilmListView(null, `Most commented`, true);
+
+    bind(this, this.__handleFilmsModelChange);
   }
 
   render() {
     super.render();
 
-    const topRatedFilms = selectTopRatedFilms(this.__filmsModel.state);
-    const mostCommentedFilms = selectMostCommentedFilms(this.__filmsModel.state);
+    const films = convertMapToArray(this.__filmsModel.state);
 
-    if (topRatedFilms && topRatedFilms.length) {
-      this._topRatedFilmListView.films = topRatedFilms;
+    this.__topRatedFilmListView.films = selectTopRatedFilms(films);
+    this.__mostCommentedFilmListView.films = selectMostCommentedFilms(films);
+    this.__topRatedFilmListView.onWatchlistButtonClick = this.__handleWatchlistButtonClick;
+    this.__topRatedFilmListView.onWatchedButtonClick = this.__handleWatchedButtonClick;
+    this.__topRatedFilmListView.onFavoriteButtonClick = this.__handleFavoriteButtonClick;
+    this.__mostCommentedFilmListView.onWatchlistButtonClick = this.__handleWatchlistButtonClick;
+    this.__mostCommentedFilmListView.onWatchedButtonClick = this.__handleWatchedButtonClick;
+    this.__mostCommentedFilmListView.onFavoriteButtonClick = this.__handleFavoriteButtonClick;
 
-      this._topRatedFilmListView.render(this._filmsView.element);
-    }
-
-    if (mostCommentedFilms && mostCommentedFilms.length) {
-      this._mostCommentedFilmListView.films = mostCommentedFilms;
-
-      this._mostCommentedFilmListView.render(this._filmsView.element);
-    }
+    this.__topRatedFilmListView.render(this.__filmsView.element);
+    this.__mostCommentedFilmListView.render(this.__filmsView.element);
   }
 
   remove() {
     super.remove();
 
-    this._topRatedFilmListView.remove();
-    this._mostCommentedFilmListView.remove();
+    this.__topRatedFilmListView.remove();
+    this.__mostCommentedFilmListView.remove();
+  }
+
+  __handleFilmsModelChange() {
+    super.__handleFilmsModelChange();
+
+    const films = convertMapToArray(this.__filmsModel.state);
+
+    this.__topRatedFilmListView.films = selectTopRatedFilms(films);
+    this.__mostCommentedFilmListView.films = selectMostCommentedFilms(films);
   }
 }

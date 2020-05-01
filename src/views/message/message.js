@@ -15,7 +15,7 @@ export default class MessageView extends View {
   set message(message) {
     this._message = message;
 
-    this.__rerender();
+    this.rerender();
   }
 }
 

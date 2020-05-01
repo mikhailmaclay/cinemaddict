@@ -1,38 +1,120 @@
+// Constants and utils
+import {RenderPosition} from '../constants/enums';
+import {bind} from '../utils/components';
+import {cloneObject, convertMapToArray} from '../utils/objects';
+//
 import SortingView from '../views/sorting/sorting';
 import FilmsView from '../views/films/films';
 import FilmListView from '../views/film-list/film-list';
-import FilmDetailsView from '../views/film-details/film-details';
 import LayoutPresenter from './layout';
 
 export default class FilmCatalogPagePresenter extends LayoutPresenter {
-  constructor(container, filmsModel) {
-    super(container, filmsModel);
+  constructor(container, filmsModel, notificationModel) {
+    super(container, filmsModel, notificationModel);
 
-    // Views
-    this._sortingView = new SortingView();
-    this._filmsView = new FilmsView();
-    this._filmListView = new FilmListView(null, `All movies. Upcoming`, false);
-    this._filmDetailsView = new FilmDetailsView(null);
+    this.__sortingView = new SortingView();
+    this.__filmsView = new FilmsView();
+    this.__filmListView = new FilmListView(null, `All movies. Upcoming`, false);
+
+    bind(this,
+        this.__handleFilmsModelChange,
+        this.__handleWatchlistButtonClick,
+        this.__handleWatchedButtonClick,
+        this.__handleFavoriteButtonClick
+    );
   }
 
   render() {
     super.render();
 
-    this._filmListView.films = this.__filmsModel.handledState;
+    const handledState = this.__filmsModel.handledState;
+    const isSortable = handledState && convertMapToArray(handledState).length > 1;
 
-    if (this.__filmsModel.state && this.__filmsModel.state.length) {
-      this._sortingView.render(this._mainView.element);
+    this.__filmListView.films = handledState;
+    this.__filmListView.onWatchlistButtonClick = this.__handleWatchlistButtonClick;
+    this.__filmListView.onWatchedButtonClick = this.__handleWatchedButtonClick;
+    this.__filmListView.onFavoriteButtonClick = this.__handleFavoriteButtonClick;
+
+
+    if (isSortable) {
+      this.__sortingView.render(this.__mainView.element);
     }
 
-    this._filmsView.render(this._mainView.element);
-    this._filmListView.render(this._filmsView.element);
+    this.__filmsView.render(this.__mainView.element);
+    this.__filmListView.render(this.__filmsView.element);
   }
 
   remove() {
     super.remove();
 
-    this._sortingView .remove();
-    this._filmsView.remove();
-    this._filmListView.remove();
+    this.__sortingView .remove();
+    this.__filmsView.remove();
+    this.__filmListView.remove();
+  }
+
+  __handleFilmsModelChange() {
+    super.__handleFilmsModelChange();
+
+    const handledState = this.__filmsModel.handledState;
+    const isSortable = handledState && convertMapToArray(handledState).length > 1;
+
+    this.__filmListView.films = handledState;
+
+    if (isSortable) {
+      this.__sortingView.render(this.__mainNavigationView.element, RenderPosition.AFTER);
+    } else {
+      this.__sortingView.remove();
+    }
+  }
+
+  __handleWatchlistButtonClick(evt) {
+    const {target} = evt;
+    const filmID = target.dataset.filmId;
+
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const userDetails = cloneObject(this.__filmsModel.state[filmID].userDetails);
+
+        userDetails.isInWatchlist = !userDetails.isInWatchlist;
+
+        this.__filmsModel.updateFilm(filmID, {userDetails});
+
+        resolve();
+      }, 500);
+    });
+  }
+
+  __handleWatchedButtonClick(evt) {
+    const {target} = evt;
+    const filmID = target.dataset.filmId;
+
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const userDetails = cloneObject(this.__filmsModel.state[filmID].userDetails);
+
+        userDetails.isAlreadyWatched = !userDetails.isAlreadyWatched;
+
+        this.__filmsModel.updateFilm(filmID, {userDetails});
+
+        resolve();
+      }, 500);
+    });
+  }
+
+  __handleFavoriteButtonClick(evt) {
+    const {target} = evt;
+    const filmID = target.dataset.filmId;
+
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const userDetails = cloneObject(this.__filmsModel.state[filmID].userDetails);
+
+        userDetails.isFavorite = !userDetails.isFavorite;
+
+        this.__filmsModel.updateFilm(filmID, {userDetails});
+
+        resolve();
+      }, 500);
+    });
   }
 }

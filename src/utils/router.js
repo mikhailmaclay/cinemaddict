@@ -1,13 +1,15 @@
+import {bind} from './components';
+
 const ROOT_PATH_NAME = `/`;
 
-class Router {
-  static init() {
-    Router.addEventListeners();
-  }
+const Router = {
+  init() {
+    this._addEventListeners();
+  },
 
-  static push(url, title = ``, state = {}) {
-    if (Router._lastURL) {
-      Router.handleLeave(state);
+  push(url, title = ``, state = {}) {
+    if (this._lastURL) {
+      this._handleLeave(state);
     }
 
     window.history.pushState(state, title, url);
@@ -16,80 +18,80 @@ class Router {
       document.title = title;
     }
 
-    Router.handleEnter(state);
+    this._handleEnter(state);
 
-    Router._lastURL = window.location.href;
-  }
+    this._lastURL = window.location.href;
+  },
 
-  static replace(url, state = {}) {
+  replace(url, state = {}) {
     window.history.replaceState(state, ``, url);
 
-    Router.handleLeave(state);
-    Router.handleEnter(state);
+    this._handleLeave(state);
+    this._handleEnter(state);
 
-    Router._lastURL = window.location.href;
-  }
+    this._lastURL = window.location.href;
+  },
 
-  static addRoute(regExp, onEnterHandler) {
-    Router._routes.add({regExp, onEnterHandler});
-  }
+  addRoute(regExp, onEnterHandler) {
+    this._routes.add({regExp, onEnterHandler});
+  },
 
-  static addEventListeners() {
-    window.addEventListener(`load`, Router.handleWindowLoad);
-    window.addEventListener(`popstate`, Router.handleWindowPopState);
-    document.body.addEventListener(`DOMSubtreeModified`, Router.handleBodyDOMSubtreeModified);
+  _addEventListeners() {
+    window.addEventListener(`load`, this._handleWindowLoad);
+    window.addEventListener(`popstate`, this._handleWindowPopState);
+    document.body.addEventListener(`DOMSubtreeModified`, this._handleBodyDOMSubtreeModified);
 
     const links = document.querySelectorAll(`a`);
 
     links.forEach((link) => {
-      if (Router._links.has(link)) {
+      if (this._links.has(link)) {
         return;
       }
 
       const {href} = link;
 
-      if (!Router.matchOrigin(href)) {
+      if (!this.matchOrigin(href)) {
         return;
       }
 
-      link.addEventListener(`click`, Router.handleLinkClick);
+      link.addEventListener(`click`, this._handleLinkClick);
 
-      Router._links.add(link);
+      this._links.add(link);
     });
-  }
+  },
 
-  static matchURL(regExp) {
+  matchURL(regExp) {
     return regExp.test(window.location.href);
-  }
+  },
 
-  static matchOrigin(url) {
+  matchOrigin(url) {
     const {origin} = new URL(url);
     const {origin: currentOrigin} = window.location;
 
     return origin === currentOrigin;
-  }
+  },
 
-  static matchPathName(regExp) {
+  matchPathName(regExp) {
     return regExp.test(window.location.pathname);
-  }
+  },
 
-  static matchSearch(regExp) {
+  matchSearch(regExp) {
     return regExp.test(window.location.search);
-  }
+  },
 
-  static handleEnter(state) {
+  _handleEnter(state) {
     let isHandled = false;
 
-    for (let route of Router._routes) {
+    for (let route of this._routes) {
       const {regExp, onEnterHandler} = route;
       const regExpResult = window.location.href.match(regExp);
 
       if (regExp.test(window.location.pathname)) {
-        if (!Router._currentRoutes.has(route)) {
+        if (!this._currentRoutes.has(route)) {
           const onLeaveHandler = onEnterHandler(state, regExpResult);
 
           if (onLeaveHandler) {
-            Router._currentRoutes.add({regExp, onLeaveHandler});
+            this._currentRoutes.add({regExp, onLeaveHandler});
           }
 
           isHandled = true;
@@ -98,80 +100,90 @@ class Router {
     }
 
     if (!isHandled) {
-      Router.handleNotFound();
+      this._handleNotFound();
     }
-  }
+  },
 
-  static handleLeave(state) {
-    for (let route of Router._currentRoutes) {
+  _handleLeave(state) {
+    for (let route of this._currentRoutes) {
       const {regExp, onLeaveHandler} = route;
-      const {pathname: pathName} = new URL(Router._lastURL);
+      const {pathname: pathName} = new URL(this._lastURL);
       const regExpResult = pathName.match(regExp);
 
       if (regExp.test(pathName)) {
         if (onLeaveHandler) {
-          onLeaveHandler(state, regExpResult);
+          /*
+            Обработка обещаний.
+          */
+          // eslint-disable-next-line no-proto
+          if (onLeaveHandler.__proto__.constructor.name === `Promise`) {
+            onLeaveHandler.then((clearFunction) => clearFunction && clearFunction());
+          } else {
+            onLeaveHandler(state, regExpResult);
+          }
         }
 
-        Router._currentRoutes.delete(route);
-
-        Router._previousURL = window.location.href;
+        this._currentRoutes.delete(route);
       }
     }
-  }
+  },
 
-  static handleNotFound() {
-    if (!Router.notFoundRoute) {
-      Router.replace(ROOT_PATH_NAME);
+  _handleNotFound() {
+    if (!this.notFoundRoute) {
+      this.replace(ROOT_PATH_NAME);
     }
 
-    Router.replace(Router.notFoundRoute);
-  }
+    this.replace(this.notFoundRoute);
+  },
 
-  static handleWindowLoad() {
-    Router.handleEnter();
+  _handleWindowLoad() {
+    this._handleEnter();
 
-    Router._lastURL = window.location.href;
-  }
+    this._lastURL = window.location.href;
+  },
 
-  static handleWindowPopState(evt) {
+  _handleWindowPopState(evt) {
     const {state} = evt;
 
-    Router.handleLeave(state);
-    Router.handleEnter(state);
+    this._handleLeave(state);
+    this._handleEnter(state);
 
-    Router._lastURL = window.location.href;
-  }
+    this._lastURL = window.location.href;
+  },
 
-  static handleBodyDOMSubtreeModified() {
-    Router.addEventListeners();
-  }
+  _handleBodyDOMSubtreeModified() {
+    this._addEventListeners();
+  },
 
-  static handleLinkClick(evt) {
+  _handleLinkClick(evt) {
     const {currentTarget} = evt;
     const {href, title} = currentTarget;
 
     evt.preventDefault();
 
-    if (Router.matchURL(new RegExp(`${href.replace(/\//g, `\\/`).replace(/\?/, `\\?`)}$`))) {
+    if (this.matchURL(new RegExp(`${href.replace(/\//g, `\\/`).replace(/\?/, `\\?`)}$`))) {
       return;
     }
 
-    Router.push(href, title ? title : ``);
+    this.push(href, title ? title : ``);
   }
-
-  constructor() {
-    if (new.target) {
-      throw new Error(`Can't instantiate Router.`);
-    }
-  }
-}
+};
 
 Router._links = new Set();
 Router._routes = new Set();
 Router._currentRoutes = new Set();
 Router.notFoundRoute = null;
 Router._lastURL = null;
+
+bind(Router,
+    Router._handleBodyDOMSubtreeModified,
+    Router._handleEnter,
+    Router._handleLeave,
+    Router._handleLinkClick,
+    Router._handleNotFound,
+    Router._handleWindowLoad,
+    Router._handleWindowPopState
+);
 
 Router._currentRoutes.has = function (route) {
   for (let currentRoute of this) {

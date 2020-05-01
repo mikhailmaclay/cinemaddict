@@ -1,13 +1,8 @@
-export const InsertAdjacentHTMLPosition = {
-  BEFORE_BEGIN: `beforebegin`,
-  AFTER_BEGIN: `afterbegin`,
-  BEFORE_END: `beforeend`,
-  AFTER_END: `afterend`
-};
-
 export const RenderPosition = {
   START: `START`,
-  END: `END`
+  END: `END`,
+  BEFORE: `BEFORE`,
+  AFTER: `AFTER`
 };
 
 export const Emotion = {
@@ -21,11 +16,13 @@ export const DateFormat = {
   FILM_CARD_DATE: `YYYY`,
   FILM_DETAILS_DATE: `DD MMMM YYYY`,
   FILM_RUNTIME: `H[h] mm[m]`,
-  COMMENT_DATE: `YYYY[/]MM[/]DD HH[:]mm`
+  COMMENT_DATE: `YYYY[/]MM[/]DD HH[:]mm`,
+  FROM_NOW: `FROM_NOW`
 };
 
 export const TimeValue = {
   MILLISECOND: {
+    SECOND: 1000,
     MINUTE: 1000 * 60
   }
 };
@@ -71,8 +68,27 @@ export const PageTitle = {
   MAIN_PAGE: `Cinemaddict`,
 };
 
-PageTitle.WATCHLIST_PAGE = `Watchlist / ${PageTitle.MAIN_PAGE}`;
-PageTitle.HISTORY_PAGE = `History / ${PageTitle.MAIN_PAGE}`;
-PageTitle.FAVORITES_PAGE = `Favorites / ${PageTitle.MAIN_PAGE}`;
-PageTitle.STATISTIC_PAGE = `Statistic / ${PageTitle.MAIN_PAGE}`;
-PageTitle.NOT_FOUND_PAGE = `Not found / ${PageTitle.MAIN_PAGE}`;
+PageTitle.WATCHLIST_PAGE = `Watchlist - ${PageTitle.MAIN_PAGE}`;
+PageTitle.HISTORY_PAGE = `History - ${PageTitle.MAIN_PAGE}`;
+PageTitle.FAVORITES_PAGE = `Favorites - ${PageTitle.MAIN_PAGE}`;
+PageTitle.STATISTIC_PAGE = `Statistic - ${PageTitle.MAIN_PAGE}`;
+PageTitle.NOT_FOUND_PAGE = `Not found - ${PageTitle.MAIN_PAGE}`;
+
+export const Notification = {
+  WELCOME: [`Welcome!`, `Welcome to the Cinemaddict. Glad to see you. We inform you that we do not collect any cookies.`],
+  CONNECTION_LOST: [`Connection lost`, `The connection is lost, but don’t worry, you can continue to use the site, and we will notify you when everything is working out.`],
+  CONNECTION_RESTORED: [`Connection restored`, `Connection restored. Do not worry, now all data is synchronized. Thank you for staying with us.`],
+  ADD_COMMENT_FAILURE: [`Something went wrong`, `Your comment was not added due to some server problem.`],
+  DELETE_COMMENT_FAILURE: [`Something went wrong`, `The comment was not deleted due to some server problems.`]
+};
+
+export const NotificationTimeValue = {
+  SHORT: TimeValue.MILLISECOND.SECOND,
+  MEDIUM: TimeValue.MILLISECOND.SECOND * 2,
+  LONG: TimeValue.MILLISECOND.SECOND * 5
+};
+
+export const KeyCode = {
+  ESCAPE: `Escape`,
+  ENTER: `Enter`
+};

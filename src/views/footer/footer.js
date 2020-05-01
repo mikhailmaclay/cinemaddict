@@ -15,7 +15,7 @@ export default class FooterView extends View {
   set filmsCount(filmsCount) {
     this._filmsCount = filmsCount;
 
-    this.__rerender();
+    this.rerender();
   }
 }
 
