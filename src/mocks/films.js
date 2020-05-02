@@ -90,7 +90,7 @@ const GENRES = [
 
 const DateDifference = {
   RELEASE_DATE: -10000,
-  WATCH_DATE: -365
+  WATCH_DATE: -20
 };
 
 const Limit = {
@@ -156,7 +156,7 @@ const createMockFilm = () => {
   const [minRuntime, maxRuntime] = Limit.RUNTIME;
   const [minCommentsCount, maxCommentsCount] = Limit.COMMENTS;
 
-  return {
+  const film = {
     "id": filmID++,
     "comments": new Array(getRandomNumberFromRange(minCommentsCount, maxCommentsCount)),
     "film_info": {
@@ -177,12 +177,17 @@ const createMockFilm = () => {
       "description": createDescription()
     },
     "user_details": {
-      "watching_date": getRandomDate(DateDifference.WATCH_DATE),
       "watchlist": castLots(),
       "already_watched": castLots(),
       "favorite": castLots()
     }
   };
+
+  if (film[`user_details`][`already_watched`]) {
+    film[`user_details`][`watching_date`] = getRandomDate(DateDifference.WATCH_DATE);
+  }
+
+  return film;
 };
 
 const createMockFilms = (count) => {

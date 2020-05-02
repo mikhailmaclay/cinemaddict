@@ -17,7 +17,8 @@ export const DateFormat = {
   FILM_DETAILS_DATE: `DD MMMM YYYY`,
   FILM_RUNTIME: `H[h] mm[m]`,
   COMMENT_DATE: `YYYY[/]MM[/]DD HH[:]mm`,
-  FROM_NOW: `FROM_NOW`
+  FROM_NOW: `FROM_NOW`,
+  STATISTIC_TOTAL_DURATION_MINUTES: `mm[<span class="statistic__item-description">m</span>]`
 };
 
 export const TimeValue = {
@@ -41,10 +42,22 @@ export const PathNameRegExp = {
   NOT_FOUND_PAGE: /\/404\/?$/
 };
 
+export const TimePeriodName = {
+  TODAY: `today`,
+  WEEK: `week`,
+  MONTH: `month`,
+  YEAR: `year`
+};
+
 export const SearchRegExp = {
   SORTING: new RegExp(`sorting=(?<sortingType>[a-z0-9]+)`), // Из-за Eslint пришлось сотворить эту ахинею.
   SORTING_DATE: /sorting=date/,
-  SORTING_RATING: /sorting=rating/
+  SORTING_RATING: /sorting=rating/,
+  PERIOD: new RegExp(`period=(?<periodRange>[a-z0-9]+)`), // Из-за Eslint пришлось сотворить эту ахинею.
+  PERIOD_TODAY: /period=today/,
+  PERIOD_WEEK: /period=week/,
+  PERIOD_MONTH: /period=month/,
+  PERIOD_YEAR: /period=year/,
 };
 
 export const SortingType = {

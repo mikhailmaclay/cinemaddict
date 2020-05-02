@@ -1,9 +1,22 @@
 // Constants and utils
 import Config from './constants/config';
-import {Notification, NotificationTimeValue, PageTitle, PathName, PathNameRegExp, TimeValue} from './constants/enums';
+import {
+  Notification,
+  NotificationTimeValue,
+  PageTitle,
+  PathName,
+  PathNameRegExp,
+  SearchRegExp,
+  TimeValue
+} from './constants/enums';
 import Router from './utils/router';
 import {Film} from './utils/adapters';
-import {filterFavoritesFilms, filterHistoryFilms, filterWatchlistFilms} from './utils/filtering';
+import {
+  filterFavoritesFilms,
+  filterFilmsByWatchingDate,
+  filterHistoryFilms,
+  filterWatchlistFilms
+} from './utils/filtering';
 import {getSortingFunctionFromSearch} from './utils/url';
 import {convertMapToArray, reduceArrayToMapByID} from './utils/objects';
 //
@@ -16,6 +29,7 @@ import StatisticPagePresenter from './presenters/statistic-page';
 import NotFoundPagePresenter from './presenters/not-found-page';
 import createMockFilms from './mocks/films';
 import './styles.scss';
+import {reduceFilmsToStatistic} from './utils/reducing';
 
 const MOCK_FILMS_COUNT = 20;
 const FAKE_REQUEST_TIME_VALUE = TimeValue.MILLISECOND.SECOND * 1.5;
@@ -133,7 +147,7 @@ function handleFilmDetailsModalEnter(_, regExpResult) {
   if (!filmID) {
     Router.replace(PathName.NOT_FOUND_PAGE);
 
-    return;
+    return null;
   }
 
   const film = filmsModel.state && filmsModel.state[filmID];
@@ -141,7 +155,7 @@ function handleFilmDetailsModalEnter(_, regExpResult) {
   if (!film) {
     Router.replace(PathName.NOT_FOUND_PAGE);
 
-    return;
+    return null;
   }
 
   const filmTitle = film.filmInfo.title;
@@ -150,21 +164,30 @@ function handleFilmDetailsModalEnter(_, regExpResult) {
 
   filmDetailsModalPresenter.render(filmID);
 
-  // eslint-disable-next-line consistent-return
   return () => {
     filmDetailsModalPresenter.remove();
   };
 }
 
-// eslint-disable-next-line
 Router.addRoute(PathNameRegExp.FILM_DETAILS_MODAL, async (_, regExpResult) => await loading.then(() => handleFilmDetailsModalEnter(_, regExpResult)));
 
 Router.addRoute(PathNameRegExp.STATISTIC_PAGE, () => {
   document.title = PageTitle.STATISTIC_PAGE;
 
+  const periodRange = window.location.search.match(SearchRegExp.PERIOD) && window.location.search.match(SearchRegExp.PERIOD).groups && window.location.search.match(SearchRegExp.PERIOD).groups.periodRange;
+  const periodFilteringFunction = (films) => filterFilmsByWatchingDate(films, periodRange);
+
+  filmsModel.addStateHandler(filterHistoryFilms);
+  filmsModel.addStateHandler(periodFilteringFunction);
+
   statisticPagePresenter.render();
 
-  return () => statisticPagePresenter.remove();
+  return () => {
+    filmsModel.removeStateHandler(periodFilteringFunction);
+    filmsModel.removeStateHandler(reduceFilmsToStatistic);
+
+    statisticPagePresenter.remove();
+  };
 });
 
 Router.addRoute(PathNameRegExp.NOT_FOUND_PAGE, () => {
@@ -178,13 +201,13 @@ Router.addRoute(PathNameRegExp.NOT_FOUND_PAGE, () => {
 window.addEventListener(`online`, () => {
   document.title = document.title.replace(` [offline]`, ``);
 
-  notificationModel.set(NotificationTimeValue.LONG, ...Notification.CONNECTION_LOST);
+  notificationModel.set(NotificationTimeValue.LONG, ...Notification.CONNECTION_RESTORED);
 });
 
 window.addEventListener(`offline`, () => {
   document.title += ` [offline]`;
 
-  notificationModel.set(NotificationTimeValue.LONG, ...Notification.CONNECTION_RESTORED);
+  notificationModel.set(NotificationTimeValue.LONG, ...Notification.CONNECTION_LOST);
 });
 
 /*

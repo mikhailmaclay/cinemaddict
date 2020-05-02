@@ -1,6 +1,8 @@
 // Constants and utils
 import {SearchRegExp} from '../../constants/enums';
 import Router from '../../utils/router';
+//
+import './sorting.styles.scss';
 
 const createSortingTemplate = () => {
   const isSortingByDefault = window.location.search === ``;

@@ -24,17 +24,22 @@ const createCommentTemplate = (comment) => {
 };
 
 const createFilmDetailsCommentListTemplate = (comments) => {
-  if (comments.length) {
-    const areCommentsLoaded = comments[0] !== undefined;
+  const areCommentsLoaded = !comments.hasOwnProperty(`length`);
+  comments = areCommentsLoaded ? Object.values(comments) : comments;
 
-    return areCommentsLoaded ? (
-      `<ul class="film-details__comments-list">
-        ${comments.map(createCommentTemplate).join(`\n`)}
-      </ul>`
-    ) : `<p>Loading...</p>`;
-  } else {
+  if (!areCommentsLoaded) {
+    return `<p>Loading...</p>`;
+  }
+
+  if (!comments.length) {
     return ``;
   }
+
+  return (
+    `<ul class="film-details__comments-list">
+      ${comments.map(createCommentTemplate).join(`\n`)}
+    </ul>`
+  );
 };
 
 export default createFilmDetailsCommentListTemplate;

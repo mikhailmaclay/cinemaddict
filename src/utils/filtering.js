@@ -1,3 +1,6 @@
+// Constants and utils
+import {TimePeriodName} from '../constants/enums';
+
 export const filterWatchlistFilms = (films) => {
   const watchlistFilms = [];
 
@@ -41,4 +44,55 @@ export const filterFavoritesFilms = (films) => {
   });
 
   return favoritesFilms;
+};
+
+export const filterFilmsByWatchingDate = (films, timePeriod) => {
+  const currentDate = new Date();
+  const currentYear = currentDate.getFullYear();
+  const currentMonth = currentDate.getMonth();
+  const currentMonthDay = currentDate.getDate();
+  const currentHours = currentDate.getHours();
+  const currentMinutes = currentDate.getMinutes();
+  const currentSeconds = currentDate.getSeconds();
+  const currentMilliseconds = currentDate.getMilliseconds();
+  let dateToCompare;
+
+  switch (timePeriod) {
+    case TimePeriodName.TODAY:
+      dateToCompare = new Date(currentYear, currentMonth, currentMonthDay);
+
+      break;
+
+    case TimePeriodName.WEEK:
+      dateToCompare = new Date(currentYear, currentMonth, currentMonthDay - 7, currentHours, currentMinutes, currentSeconds, currentMilliseconds);
+
+      break;
+
+    case TimePeriodName.MONTH:
+      dateToCompare = new Date(currentYear, currentMonth - 1, currentMonthDay, currentHours, currentMinutes, currentSeconds, currentMilliseconds);
+
+      break;
+
+    case TimePeriodName.YEAR:
+      dateToCompare = new Date(currentYear - 1, currentMonth, currentMonthDay, currentHours, currentMinutes, currentSeconds, currentMilliseconds);
+
+      break;
+
+    default:
+      dateToCompare = null;
+  }
+
+  if (!dateToCompare) {
+    return films;
+  }
+
+  return films.filter((film) => {
+    const watchingDate = film.userDetails.watchingDate ? new Date(film.userDetails.watchingDate) : null;
+
+    if (!watchingDate) {
+      return null;
+    }
+
+    return watchingDate >= dateToCompare;
+  });
 };

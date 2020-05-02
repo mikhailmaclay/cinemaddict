@@ -4,7 +4,7 @@ import {nanoid} from 'nanoid';
 export class Film {
   constructor(data) {
     this.id = data[`id`];
-    this.comments = new Array(data[`comments`].length);
+    this.comments = {length: data[`comments`].length};
     this.filmInfo = {
       title: data[`film_info`][`title`],
       alternativeTitle: data[`film_info`][`alternative_title`],

@@ -1,7 +1,7 @@
 import View from '../abstract/view';
-import createProfileTemplate from './profile.template';
+import createStatisticRankTemplate from './statistic-rank.template';
 
-export default class ProfileView extends View {
+export default class StatisticRankView extends View {
   constructor() {
     super();
 
@@ -15,7 +15,6 @@ export default class ProfileView extends View {
   }
 
   get template() {
-    return createProfileTemplate(this._rank);
+    return createStatisticRankTemplate(this._rank);
   }
 }
-

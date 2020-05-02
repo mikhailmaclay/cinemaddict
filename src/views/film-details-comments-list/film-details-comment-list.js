@@ -8,7 +8,7 @@ export default class FilmDetailsCommentListView extends View {
   constructor(comments) {
     super();
 
-    this._comments = comments && Object.values(comments);
+    this._comments = comments;
 
     this.onCommentDeleteButtonClick = null;
 
@@ -23,7 +23,7 @@ export default class FilmDetailsCommentListView extends View {
   }
 
   set comments(comments) {
-    this._comments = Object.values(comments);
+    this._comments = comments;
 
     this.rerender();
   }

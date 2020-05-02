@@ -5,10 +5,14 @@ import {DateFormat} from '../../constants/enums';
 import './film-details.styles.scss';
 
 const createFilmDetailsTemplate = (film) => {
-  const {comments, filmInfo, userDetails} = film;
+  const {filmInfo, userDetails} = film;
+  let {comments} = film;
   const {title, alternativeTitle, totalRating, poster, ageRating, director, writers, actors, release, runtime, genres, description} = filmInfo;
   const {date, country} = release;
   const {isInWatchlist, isAlreadyWatched, isFavorite} = userDetails;
+
+  const areCommentsLoaded = !comments.hasOwnProperty(`length`);
+  comments = areCommentsLoaded ? Object.values(comments) : comments;
 
   return (
     `<section class="film-details">
@@ -90,7 +94,7 @@ const createFilmDetailsTemplate = (film) => {
 
         <div class="form-details__bottom-container">
           <section class="film-details__comments-wrap">
-            <h3 class="film-details__comments-title">Comments: <span class="film-details__comments-count">${comments && Object.values(comments).length}</span></h3>
+            <h3 class="film-details__comments-title">Comments: <span class="film-details__comments-count">${comments.length}</span></h3>
           </section>
         </div>
       </div>

@@ -93,6 +93,7 @@ export default class FilmCatalogPagePresenter extends LayoutPresenter {
         const userDetails = cloneObject(this.__filmsModel.state[filmID].userDetails);
 
         userDetails.isAlreadyWatched = !userDetails.isAlreadyWatched;
+        userDetails.watchingDate = userDetails.isAlreadyWatched ? new Date().toISOString() : null;
 
         this.__filmsModel.updateFilm(filmID, {userDetails});
 

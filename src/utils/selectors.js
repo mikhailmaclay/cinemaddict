@@ -11,6 +11,10 @@ export const selectTopRatedFilms = (films) => {
     return [];
   }
 
+  if (films.every((film) => film.filmInfo.totalRating === 0)) {
+    return [];
+  }
+
   return sortFilmsByRating(films).slice(0, Config.EXTRA_FILM_CARDS_COUNT);
 };
 
@@ -23,7 +27,19 @@ export const selectMostCommentedFilms = (films) => {
     return [];
   }
 
-  return sortFilmsByCommentsCount(films).slice(0, Config.EXTRA_FILM_CARDS_COUNT);
+  const filmsWithComments = films.filter((film) => {
+    const areCommentsLoaded = !film.comments.hasOwnProperty(`length`);
+
+    return areCommentsLoaded ? Object.values(film.comments).length > 0 : film.comments.length > 0;
+  });
+
+  if (!filmsWithComments.length) {
+    return [];
+  }
+
+  const sortedFilmsByCommentsCount = sortFilmsByCommentsCount(filmsWithComments);
+
+  return sortedFilmsByCommentsCount.slice(0, Math.min(sortedFilmsByCommentsCount.length, Config.EXTRA_FILM_CARDS_COUNT));
 };
 
 export const selectFilmCountsByFilterCategories = (films) => {

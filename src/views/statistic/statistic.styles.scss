@@ -1,0 +1,21 @@
+.statistic__filters-label {
+  color: var(--text-color);
+}
+
+.statistic__filters-label--active {
+  color: var(--text-color-active);
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    width: 100%;
+    height: 2px;
+    background-color: var(--text-color-active);
+  }
+}
+
+.statistic__filters {
+  user-select: none;
+}

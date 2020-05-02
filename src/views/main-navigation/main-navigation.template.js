@@ -1,6 +1,8 @@
 // Constants and utils
 import {PathNameRegExp} from '../../constants/enums';
 import Router from '../../utils/router';
+//
+import './main-navigation.styles.scss';
 
 const createMainNavigationTemplate = (watchlistCount, historyCount, favoritesCount) => {
   const isMainPage = Router.matchPathName(PathNameRegExp.MAIN_PAGE);

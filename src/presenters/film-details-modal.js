@@ -2,7 +2,6 @@
 import he from 'he';
 // Constants and utils
 import {Notification, NotificationTimeValue, TimeValue} from '../constants/enums';
-import {FIRST_ARRAY_ELEMENT_INDEX} from '../constants/common';
 import {Comment} from '../utils/adapters';
 import {bind} from '../utils/components';
 import {cloneObject, reduceArrayToMapByID} from '../utils/objects';
@@ -10,40 +9,37 @@ import {cloneObject, reduceArrayToMapByID} from '../utils/objects';
 import FilmDetailsView from '../views/film-details/film-details';
 import FilmDetailsNewCommentView from '../views/film-details-new-comment/film-details-new-comment';
 import FilmDetailsCommentListView from '../views/film-details-comments-list/film-details-comment-list';
-import NotificationView from '../views/notification/notification';
+import RootPresenter from './root';
 import createMockComments from '../mocks/comments';
 
 const FAKE_REQUEST_TIME_VALUE = TimeValue.MILLISECOND.SECOND * 0.5;
 
-export default class FilmDetailsModalPresenter {
+export default class FilmDetailsModalPresenter extends RootPresenter {
   constructor(container, filmsModel, notificationModel) {
-    this.__container = container;
+    super(container, notificationModel);
 
     this._filmID = null;
 
     this.__filmsModel = filmsModel;
-    this.__notificationModel = notificationModel;
 
     this.__filmDetailsView = new FilmDetailsView(null);
     this.__filmDetailsCommentListView = new FilmDetailsCommentListView(null);
     this.__filmDetailsNewCommentView = new FilmDetailsNewCommentView();
-    this.__notificationView = new NotificationView(null);
 
     bind(this,
         this.__handleFilmsModelChange,
-        this.__handleNotificationModelChange,
         this._handleWatchlistCheckboxChange,
         this._handleWatchedCheckboxChange,
         this._handleFavoriteCheckboxChange,
         this._handleCommentSubmit,
-        this._handleNotificationCloseButtonClick,
         this._handleCommentDeleteButtonClick
     );
   }
 
   render(filmID) {
+    super.render();
+
     this.__filmsModel.addChangeHandler(this.__handleFilmsModelChange);
-    this.__notificationModel.addChangeHandler(this.__handleNotificationModelChange);
 
     if (filmID) {
       this._filmID = filmID; // Записываю в свойства экземпляра класса, чтобы можно было использовать при перерисовке (rerender).
@@ -57,31 +53,30 @@ export default class FilmDetailsModalPresenter {
     this.__filmDetailsView.onWatchedCheckboxChange = this._handleWatchedCheckboxChange;
     this.__filmDetailsView.onFavoriteCheckboxChange = this._handleFavoriteCheckboxChange;
     this.__filmDetailsNewCommentView.onCommentSubmit = this._handleCommentSubmit;
-    this.__notificationView.onCloseButtonClick = this._handleNotificationCloseButtonClick;
     this.__filmDetailsCommentListView.onCommentDeleteButtonClick = this._handleCommentDeleteButtonClick;
 
     this.__filmDetailsView.render(this.__container);
     this.__filmDetailsCommentListView.render(() => this.__filmDetailsView.commentsWrap);
     this.__filmDetailsNewCommentView.render(() => this.__filmDetailsView.commentsWrap);
-    this.__notificationView.render(this.__container);
 
-    const areCommentsLoaded = Boolean(film.comments[FIRST_ARRAY_ELEMENT_INDEX]);
+    const areCommentsLoaded = !film.comments.hasOwnProperty(`length`);
 
     if (!areCommentsLoaded) {
       const newFilm = cloneObject(this.__filmsModel.state[this._filmID]);
 
       newFilm.comments = createMockComments(film.comments.length).map((comment) => new Comment(comment)).reduce(reduceArrayToMapByID, {});
 
-      this.__filmsModel.updateFilm(filmID, newFilm);
+      setTimeout(() => this.__filmsModel.updateFilm(filmID, newFilm), FAKE_REQUEST_TIME_VALUE);
     }
   }
 
   remove() {
+    super.remove();
+
     this.__filmsModel.removeChangeHandler(this.__handleFilmsModelChange);
     this.__filmDetailsView.remove();
     this.__filmDetailsCommentListView.remove();
     this.__filmDetailsNewCommentView.remove();
-    this.__notificationView.remove();
   }
 
   __handleFilmsModelChange() {
@@ -90,14 +85,6 @@ export default class FilmDetailsModalPresenter {
     this.__filmDetailsView.film = film;
     this.__filmDetailsCommentListView.comments = film.comments;
     this.__filmDetailsNewCommentView.rerender();
-  }
-
-  _handleNotificationCloseButtonClick() {
-    this.__notificationModel.unset();
-  }
-
-  __handleNotificationModelChange() {
-    this.__notificationView.notification = this.__notificationModel.state;
   }
 
   _handleWatchlistCheckboxChange(evt) {
@@ -126,6 +113,7 @@ export default class FilmDetailsModalPresenter {
         const userDetails = cloneObject(this.__filmsModel.state[this._filmID].userDetails);
 
         userDetails.isAlreadyWatched = value;
+        userDetails.watchingDate = value ? new Date().toISOString() : null;
 
         this.__filmsModel.updateFilm(this._filmID, {userDetails});
 

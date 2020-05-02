@@ -9,10 +9,14 @@ import Router from '../../utils/router';
 const FIRST_GENRE = 0;
 
 const createFilmCardTemplate = (film) => {
-  const {id, comments, filmInfo, userDetails} = film;
+  const {id, filmInfo, userDetails} = film;
+  let {comments} = film;
   const {title, totalRating, poster, release, runtime, genres, description} = filmInfo;
   const {date} = release;
   const {isInWatchlist, isAlreadyWatched, isFavorite} = userDetails;
+
+  const areCommentsLoaded = !comments.hasOwnProperty(`length`);
+  comments = areCommentsLoaded ? Object.values(comments) : comments;
 
   return (
     `<article class="film-card">
