@@ -24,10 +24,10 @@ const createCommentTemplate = (comment) => {
 };
 
 const createFilmDetailsCommentListTemplate = (comments) => {
-  const areCommentsLoaded = !comments.hasOwnProperty(`length`);
-  comments = areCommentsLoaded ? Object.values(comments) : comments;
+  const areCommentsRead = !comments.hasOwnProperty(`length`);
+  comments = areCommentsRead ? Object.values(comments) : comments;
 
-  if (!areCommentsLoaded) {
+  if (!areCommentsRead) {
     return `<p>Loading...</p>`;
   }
 

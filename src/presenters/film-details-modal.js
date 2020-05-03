@@ -1,7 +1,7 @@
 // Libraries
 import he from 'he';
 // Constants and utils
-import {Notification, NotificationTimeValue, TimeValue} from '../constants/enums';
+import {Notification, NotificationTimeValue, RenderPosition} from '../constants/enums';
 import {Comment} from '../utils/adapters';
 import {bind} from '../utils/components';
 import {cloneObject, reduceArrayToMapByID} from '../utils/objects';
@@ -10,9 +10,7 @@ import FilmDetailsView from '../views/film-details/film-details';
 import FilmDetailsNewCommentView from '../views/film-details-new-comment/film-details-new-comment';
 import FilmDetailsCommentListView from '../views/film-details-comments-list/film-details-comment-list';
 import RootPresenter from './root';
-import createMockComments from '../mocks/comments';
-
-const FAKE_REQUEST_TIME_VALUE = TimeValue.MILLISECOND.SECOND * 0.5;
+import {api} from '../index';
 
 export default class FilmDetailsModalPresenter extends RootPresenter {
   constructor(container, filmsModel, notificationModel) {
@@ -32,7 +30,11 @@ export default class FilmDetailsModalPresenter extends RootPresenter {
         this._handleWatchedCheckboxChange,
         this._handleFavoriteCheckboxChange,
         this._handleCommentSubmit,
-        this._handleCommentDeleteButtonClick
+        this._handleCommentDeleteButtonClick,
+        this._handleReadCommentsFulfilled,
+        this._handleReadCommentsRejected,
+        this._handleUpdateFilmFulfilled,
+        this._handleCreateCommentFulfilled
     );
   }
 
@@ -56,18 +58,10 @@ export default class FilmDetailsModalPresenter extends RootPresenter {
     this.__filmDetailsCommentListView.onCommentDeleteButtonClick = this._handleCommentDeleteButtonClick;
 
     this.__filmDetailsView.render(this.__container);
-    this.__filmDetailsCommentListView.render(() => this.__filmDetailsView.commentsWrap);
+    this.__filmDetailsCommentListView.render(() => this.__filmDetailsView.title, RenderPosition.AFTER);
     this.__filmDetailsNewCommentView.render(() => this.__filmDetailsView.commentsWrap);
 
-    const areCommentsLoaded = !film.comments.hasOwnProperty(`length`);
-
-    if (!areCommentsLoaded) {
-      const newFilm = cloneObject(this.__filmsModel.state[this._filmID]);
-
-      newFilm.comments = createMockComments(film.comments.length).map((comment) => new Comment(comment)).reduce(reduceArrayToMapByID, {});
-
-      setTimeout(() => this.__filmsModel.updateFilm(filmID, newFilm), FAKE_REQUEST_TIME_VALUE);
-    }
+    this._readComments();
   }
 
   remove() {
@@ -79,83 +73,69 @@ export default class FilmDetailsModalPresenter extends RootPresenter {
     this.__filmDetailsNewCommentView.remove();
   }
 
+  _readComments() {
+    const film = this.__filmsModel.state[this._filmID];
+    const areCommentsRead = !film.comments.hasOwnProperty(`length`);
+
+    if (!areCommentsRead) {
+      api.readComments(this._filmID)
+        .then(this._handleReadCommentsFulfilled)
+        .catch(this._handleReadCommentsRejected);
+    }
+  }
+
   __handleFilmsModelChange() {
     const film = this.__filmsModel.state[this._filmID];
 
     this.__filmDetailsView.film = film;
     this.__filmDetailsCommentListView.comments = film.comments;
     this.__filmDetailsNewCommentView.rerender();
+
+    this._readComments();
   }
 
   _handleWatchlistCheckboxChange(evt) {
     const {target} = evt;
     const {checked: value} = target;
 
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const userDetails = cloneObject(this.__filmsModel.state[this._filmID].userDetails);
+    const film = cloneObject(this.__filmsModel.state[this._filmID], true);
+    film.userDetails.isInWatchlist = value;
 
-        userDetails.isInWatchlist = value;
-
-        this.__filmsModel.updateFilm(this._filmID, {userDetails});
-
-        resolve();
-      }, FAKE_REQUEST_TIME_VALUE);
-    });
+    return api.updateFilm(this._filmID, film)
+      .then(this._handleUpdateFilmFulfilled);
   }
 
   _handleWatchedCheckboxChange(evt) {
     const {target} = evt;
     const {checked: value} = target;
 
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const userDetails = cloneObject(this.__filmsModel.state[this._filmID].userDetails);
+    const film = cloneObject(this.__filmsModel.state[this._filmID], true);
+    film.userDetails.isAlreadyWatched = value;
 
-        userDetails.isAlreadyWatched = value;
-        userDetails.watchingDate = value ? new Date().toISOString() : null;
-
-        this.__filmsModel.updateFilm(this._filmID, {userDetails});
-
-        resolve();
-      }, FAKE_REQUEST_TIME_VALUE);
-    });
+    return api.updateFilm(this._filmID, film)
+      .then(this._handleUpdateFilmFulfilled);
   }
 
   _handleFavoriteCheckboxChange(evt) {
     const {target} = evt;
     const {checked: value} = target;
 
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const userDetails = cloneObject(this.__filmsModel.state[this._filmID].userDetails);
+    const film = cloneObject(this.__filmsModel.state[this._filmID], true);
+    film.userDetails.isFavorite = value;
 
-        userDetails.isFavorite = value;
-
-        this.__filmsModel.updateFilm(this._filmID, {userDetails});
-
-        resolve();
-      }, FAKE_REQUEST_TIME_VALUE);
-    });
+    return api.updateFilm(this._filmID, film)
+      .then(this._handleUpdateFilmFulfilled);
   }
 
   _handleCommentSubmit(evt) {
     const {target} = evt;
-
     const formData = new FormData(target);
-    const comments = cloneObject(this.__filmsModel.state[this._filmID].comments);
     const comment = new Comment({text: he.encode(formData.get(`comment-text`)), emotion: he.encode(formData.get(`comment-emotion`))});
 
-    comments[comment.id] = comment;
-
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        this.__filmsModel.updateFilm(this._filmID, {comments});
-        resolve();
-      }, FAKE_REQUEST_TIME_VALUE);
-    })
+    return api.createComment(this._filmID, comment)
+      .then(this._handleCreateCommentFulfilled)
       .catch((reason) => {
-        this.__notificationModel.set(NotificationTimeValue.LONG, ...Notification.ADD_COMMENT_FAILURE);
+        this.__notificationModel.set(NotificationTimeValue.LONG, ...Notification.CREATE_COMMENT_FAILURE);
 
         throw reason;
       });
@@ -164,20 +144,42 @@ export default class FilmDetailsModalPresenter extends RootPresenter {
   _handleCommentDeleteButtonClick(evt) {
     const {target} = evt;
     const {commentId: commentID} = target.dataset;
-    const comments = cloneObject(this.__filmsModel.state[this._filmID].comments);
-    delete comments[commentID];
 
-    return new Promise((resolve) => {
-      setTimeout(() => {
+
+    return api.deleteComment(commentID)
+      .then(() => {
+        const comments = cloneObject(this.__filmsModel.state[this._filmID].comments);
+        delete comments[commentID];
+
         this.__filmsModel.updateFilm(this._filmID, {comments});
-
-        resolve();
-      }, FAKE_REQUEST_TIME_VALUE);
-    })
+      })
       .catch((reason) => {
         this.__notificationModel.set(NotificationTimeValue.LONG, ...Notification.DELETE_COMMENT_FAILURE);
 
         throw reason;
       });
+  }
+
+  _handleReadCommentsFulfilled(comments) {
+    this.__filmDetailsCommentListView.placeholder = null;
+
+    const newFilm = cloneObject(this.__filmsModel.state[this._filmID]);
+
+    newFilm.comments = comments.reduce(reduceArrayToMapByID, {});
+    this.__filmsModel.updateFilm(this._filmID, newFilm);
+  }
+
+  _handleReadCommentsRejected(reason) {
+    this.__filmDetailsCommentListView.placeholder = `<p>An error occurred while loading comments. Please try again later.</p>`;
+
+    throw reason;
+  }
+
+  _handleUpdateFilmFulfilled(film) {
+    this.__filmsModel.updateFilm(this._filmID, film);
+  }
+
+  _handleCreateCommentFulfilled(film) {
+    this.__filmsModel.updateFilm(this._filmID, film);
   }
 }

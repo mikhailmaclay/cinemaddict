@@ -9,13 +9,13 @@ export class Film {
       title: data[`film_info`][`title`],
       alternativeTitle: data[`film_info`][`alternative_title`],
       totalRating: data[`film_info`][`total_rating`],
-      poster: data[`film_info`][`poster`],
+      poster: `/${data[`film_info`][`poster`]}`,
       ageRating: data[`film_info`][`age_rating`],
       director: data[`film_info`][`director`],
       writers: data[`film_info`][`writers`],
       actors: data[`film_info`][`actors`],
       release: {
-        date: data[`film_info`][`release`][`date`],
+        date: new Date(data[`film_info`][`release`][`date`]),
         country: data[`film_info`][`release`][`release_country`]
       },
       runtime: data[`film_info`][`runtime`],
@@ -23,7 +23,6 @@ export class Film {
       description: data[`film_info`][`description`]
     };
     this.userDetails = {
-      personalRating: data[`user_details`][`personal_rating`],
       watchingDate: data[`user_details`][`watching_date`],
       isInWatchlist: data[`user_details`][`watchlist`],
       isAlreadyWatched: data[`user_details`][`already_watched`],
@@ -34,7 +33,7 @@ export class Film {
   getRaw() {
     return {
       "id": this.id,
-      "comments": this.comments,
+      "comments": Object.keys(this.comments),
       "film_info": {
         "title": this.filmInfo.title,
         "alternative_title": this.filmInfo.alternativeTitle,
@@ -45,7 +44,7 @@ export class Film {
         "writers": this.filmInfo.writers,
         "actors": this.filmInfo.actors,
         "release": {
-          "date": this.filmInfo.release.date,
+          "date": this.filmInfo.release.date.toISOString(),
           "release_country": this.filmInfo.release.country
         },
         "runtime": this.filmInfo.runtime,
@@ -65,18 +64,16 @@ export class Film {
 export class Comment {
   constructor(data) {
     this.id = data[`id`] || nanoid();
-    this.author = data[`author`] || `Administrator`;
+    this.author = data[`author`];
     this.text = data[`comment`] || data.text;
-    this.date = data[`date`] || new Date().toISOString();
+    this.date = data[`date`] || new Date();
     this.emotion = data[`emotion`];
   }
 
   getRaw() {
     return {
-      "id": this.id,
-      "author": this.author,
       "comment": this.text,
-      "date": this.date,
+      "date": this.date.toISOString(),
       "emotion": this.emotion
     };
   }

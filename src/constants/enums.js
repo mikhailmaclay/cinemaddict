@@ -91,7 +91,8 @@ export const Notification = {
   WELCOME: [`Welcome!`, `Welcome to the Cinemaddict. Glad to see you. We inform you that we do not collect any cookies.`],
   CONNECTION_LOST: [`Connection lost`, `The connection is lost, but don’t worry, you can continue to use the site, and we will notify you when everything is working out.`],
   CONNECTION_RESTORED: [`Connection restored`, `Connection restored. Do not worry, now all data is synchronized. Thank you for staying with us.`],
-  ADD_COMMENT_FAILURE: [`Something went wrong`, `Your comment was not added due to some server problem.`],
+  READ_FILMS_FAILURE: [`Something went wrong`, `Films was not loaded due to some server problems.`],
+  CREATE_COMMENT_FAILURE: [`Something went wrong`, `Your comment was not added due to some server problem.`],
   DELETE_COMMENT_FAILURE: [`Something went wrong`, `The comment was not deleted due to some server problems.`]
 };
 

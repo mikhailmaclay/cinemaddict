@@ -28,9 +28,9 @@ export const selectMostCommentedFilms = (films) => {
   }
 
   const filmsWithComments = films.filter((film) => {
-    const areCommentsLoaded = !film.comments.hasOwnProperty(`length`);
+    const areCommentsRead = !film.comments.hasOwnProperty(`length`);
 
-    return areCommentsLoaded ? Object.values(film.comments).length > 0 : film.comments.length > 0;
+    return areCommentsRead ? Object.values(film.comments).length > 0 : film.comments.length > 0;
   });
 
   if (!filmsWithComments.length) {

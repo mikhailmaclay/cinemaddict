@@ -2,6 +2,7 @@
 import {convertMapToArray} from '../utils/objects';
 import {selectFilmCountsByFilterCategories} from '../utils/selectors';
 import {bind} from '../utils/components';
+import {reduceFilmsToRank} from '../utils/reducing';
 //
 import HeaderView from '../views/header/header';
 import FooterView from '../views/footer/footer';
@@ -9,7 +10,6 @@ import MainView from '../views/main/main';
 import ProfileView from '../views/profile/profile';
 import MainNavigationView from '../views/main-navigation/main-navigation';
 import RootPresenter from './root';
-import {reduceFilmsToRank} from '../utils/reducing';
 
 /*
   Общий представитель, целью которого являются отрисовать общие представления для всех страниц, а также сформировать данные
@@ -64,9 +64,9 @@ export default class LayoutPresenter extends RootPresenter {
   }
 
   __handleFilmsModelChange() {
-    const isLoaded = Boolean(this.__filmsModel.state);
+    const isRead = Boolean(this.__filmsModel.state);
 
-    if (isLoaded) {
+    if (isRead) {
       this.__profileView.rank = reduceFilmsToRank(convertMapToArray(this.__filmsModel.state));
       this.__profileView.render(this.__headerView.element);
     } else {

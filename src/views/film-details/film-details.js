@@ -59,6 +59,7 @@ export default class FilmDetailsView extends View {
 
   __selectElements() {
     this._form = this.element.querySelector(`.film-details__controls`);
+    this.title = this.element.querySelector(`.film-details__comments-title`);
     this._watchlistCheckbox = this._form.elements.watchlist;
     this._watchedCheckbox = this._form.elements.watched;
     this._favoriteCheckbox = this._form.elements.favorite;

@@ -7,10 +7,8 @@ import {
   PathName,
   PathNameRegExp,
   SearchRegExp,
-  TimeValue
 } from './constants/enums';
 import Router from './utils/router';
-import {Film} from './utils/adapters';
 import {
   filterFavoritesFilms,
   filterFilmsByWatchingDate,
@@ -19,6 +17,7 @@ import {
 } from './utils/filtering';
 import {getSortingFunctionFromSearch} from './utils/url';
 import {convertMapToArray, reduceArrayToMapByID} from './utils/objects';
+import {reduceFilmsToStatistic} from './utils/reducing';
 //
 import FilmsModel from './models/films';
 import NotificationModel from './models/notification';
@@ -27,21 +26,18 @@ import FilmCatalogPagePresenter from './presenters/film-catalog-page';
 import FilmDetailsModalPresenter from './presenters/film-details-modal';
 import StatisticPagePresenter from './presenters/statistic-page';
 import NotFoundPagePresenter from './presenters/not-found-page';
-import createMockFilms from './mocks/films';
+import API from './api';
 import './styles.scss';
-import {reduceFilmsToStatistic} from './utils/reducing';
 
-const MOCK_FILMS_COUNT = 20;
-const FAKE_REQUEST_TIME_VALUE = TimeValue.MILLISECOND.SECOND * 1.5;
+export const api = new API(Config.END_POINT, Config.AUTHORIZATION);
 
-const loadFilms = () => {
-  return new Promise((resolve) => {
-    setTimeout(() => resolve(createMockFilms(MOCK_FILMS_COUNT)), FAKE_REQUEST_TIME_VALUE);
-  });
-};
+const readFilmsRequest = api.readFilms().then((films) => {
+  filmsModel.state = films.reduce(reduceArrayToMapByID, {});
+}).catch((reason) => {
+  filmsModel.state = {};
+  notificationModel.set(NotificationTimeValue.LONG, ...Notification.READ_FILMS_FAILURE);
 
-const loading = loadFilms().then((films) => {
-  filmsModel.state = films.map((film) => new Film(film)).reduce(reduceArrayToMapByID, {});
+  throw reason;
 });
 
 const filmsModel = new FilmsModel();
@@ -169,7 +165,7 @@ function handleFilmDetailsModalEnter(_, regExpResult) {
   };
 }
 
-Router.addRoute(PathNameRegExp.FILM_DETAILS_MODAL, async (_, regExpResult) => await loading.then(() => handleFilmDetailsModalEnter(_, regExpResult)));
+Router.addRoute(PathNameRegExp.FILM_DETAILS_MODAL, async (_, regExpResult) => await readFilmsRequest.then(() => handleFilmDetailsModalEnter(_, regExpResult)));
 
 Router.addRoute(PathNameRegExp.STATISTIC_PAGE, () => {
   document.title = PageTitle.STATISTIC_PAGE;

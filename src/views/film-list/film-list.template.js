@@ -1,12 +1,11 @@
 // Constants and utils
 import Config from '../../constants/config';
 import {DateFormat, PathNameRegExp} from '../../constants/enums';
+import Router from '../../utils/router';
+import {FIRST_ARRAY_ELEMENT_INDEX} from '../../constants/common';
 import {formatDate, formatDuration} from '../../utils/date';
 import {pluralize} from '../../utils/numbers';
 import {cutText} from '../../utils/strings';
-import Router from '../../utils/router';
-
-const FIRST_GENRE = 0;
 
 const createFilmCardTemplate = (film) => {
   const {id, filmInfo, userDetails} = film;
@@ -15,8 +14,8 @@ const createFilmCardTemplate = (film) => {
   const {date} = release;
   const {isInWatchlist, isAlreadyWatched, isFavorite} = userDetails;
 
-  const areCommentsLoaded = !comments.hasOwnProperty(`length`);
-  comments = areCommentsLoaded ? Object.values(comments) : comments;
+  const areCommentsRead = !comments.hasOwnProperty(`length`);
+  comments = areCommentsRead ? Object.values(comments) : comments;
 
   return (
     `<article class="film-card">
@@ -25,7 +24,7 @@ const createFilmCardTemplate = (film) => {
       <p class="film-card__info">
         <span class="film-card__year">${formatDate(date, DateFormat.FILM_CARD_DATE)}</span>
         <span class="film-card__duration">${formatDuration(runtime, DateFormat.FILM_RUNTIME).replace(/^0h | 0m/, ``)}</span>
-        <span class="film-card__genre">${genres[FIRST_GENRE]}</span>
+        ${genres[FIRST_ARRAY_ELEMENT_INDEX] ? `<span class="film-card__genre">${genres[FIRST_ARRAY_ELEMENT_INDEX]}</span>` : ``}
       </p>
       <a href="/films/${id}">
         <img src="${poster}" alt="${title}" class="film-card__poster">

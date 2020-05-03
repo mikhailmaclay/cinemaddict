@@ -9,6 +9,7 @@ export default class FilmDetailsCommentListView extends View {
     super();
 
     this._comments = comments;
+    this._placeholder = null;
 
     this.onCommentDeleteButtonClick = null;
 
@@ -19,11 +20,21 @@ export default class FilmDetailsCommentListView extends View {
   }
 
   get template() {
+    if (this._placeholder) {
+      return this._placeholder;
+    }
+
     return createFilmDetailsCommentListTemplate(this._comments);
   }
 
   set comments(comments) {
     this._comments = comments;
+
+    this.rerender();
+  }
+
+  set placeholder(value) {
+    this._placeholder = value;
 
     this.rerender();
   }

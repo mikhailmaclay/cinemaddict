@@ -9,10 +9,10 @@ const Config = {
     {name: `Fan`, fromWatchedFilmsCount: 11},
     {name: `Movie buff`, fromWatchedFilmsCount: 21},
   ],
-  END_POINT: `https://htmlacademy-es-10.appspot.com/cinemaddict`,
+  END_POINT: `https://11.ecmascript.pages.academy/cinemaddict`,
+  AUTHORIZATION: `Basic dXNlckBwYXN`,
   STORE_PREFIX: `cinemaddict-localstorage`,
-  STORE_VER: `v1`,
-  AUTHORIZATION: `Basic dXNlckBwYXNzd29yZAo=`
+  STORE_VER: `v1`
 };
 
 Config.STORE_NAME = `${Config.STORE_PREFIX}-${Config.STORE_VER}`;

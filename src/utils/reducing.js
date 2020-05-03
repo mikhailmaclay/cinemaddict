@@ -50,7 +50,7 @@ export const reduceFilmsToCountsByGenres = (films) => {
   }
 
   return films.reduce((genres, film) => {
-    const currentFilmGenre = film.filmInfo.genres[FIRST_ARRAY_ELEMENT_INDEX];
+    const currentFilmGenre = film.filmInfo.genres[FIRST_ARRAY_ELEMENT_INDEX] ? film.filmInfo.genres[FIRST_ARRAY_ELEMENT_INDEX] : `No genre`;
 
     if (genres[currentFilmGenre]) {
       ++genres[currentFilmGenre];

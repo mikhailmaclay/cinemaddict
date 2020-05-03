@@ -1,6 +1,6 @@
 // Constants and utils
-import {formatDate, formatDuration} from '../../utils/date';
 import {DateFormat} from '../../constants/enums';
+import {formatDate, formatDuration} from '../../utils/date';
 //
 import './film-details.styles.scss';
 
@@ -11,8 +11,8 @@ const createFilmDetailsTemplate = (film) => {
   const {date, country} = release;
   const {isInWatchlist, isAlreadyWatched, isFavorite} = userDetails;
 
-  const areCommentsLoaded = !comments.hasOwnProperty(`length`);
-  comments = areCommentsLoaded ? Object.values(comments) : comments;
+  const areCommentsRead = !comments.hasOwnProperty(`length`);
+  comments = areCommentsRead ? Object.values(comments) : comments;
 
   return (
     `<section class="film-details">
@@ -67,11 +67,13 @@ const createFilmDetailsTemplate = (film) => {
                   <td class="film-details__term">Country</td>
                   <td class="film-details__cell">${country}</td>
                 </tr>
-                <tr class="film-details__row">
-                  <td class="film-details__term">Genres</td>
-                  <td class="film-details__cell">
-                    ${genres.map((genre) => `<span class="film-details__genre">${genre}</span>`).join(`\n`)}
-                </tr>
+                ${genres.length ? (
+      `<tr class="film-details__row">
+        <td class="film-details__term">Genres</td>
+        <td class="film-details__cell">
+          ${genres.map((genre) => `<span class="film-details__genre">${genre}</span>`).join(`\n`)}
+      </tr>`
+    ) : ``}
               </tbody></table>
 
               <p class="film-details__film-description">
