@@ -15,7 +15,7 @@ export default class FilmDetailsNewCommentView extends View {
 
     this.onCommentSubmit = null;
 
-    this._commentTextFieldErrorTimeout = null;
+    this._errorTimeout = null;
 
     bind(this,
         this._handleWindowKeyDown,
@@ -139,11 +139,11 @@ export default class FilmDetailsNewCommentView extends View {
   }
 
   _handleRejectedOnCommentSubmit() {
-    this._commentTextField.classList.add(`film-details__comment-input--error`);
+    this.element.classList.add(`film-details__new-comment--error`);
 
-    clearTimeout(this._commentTextFieldErrorTimeout);
+    clearTimeout(this._errorTimeout);
 
-    this._commentTextFieldErrorTimeout = setTimeout(() => this._commentTextField.classList.remove(`film-details__comment-input--error`), TimeValue.MILLISECOND.SECOND * 0.5);
+    this._errorTimeout = setTimeout(() => this.element.classList.remove(`film-details__new-comment--error`), TimeValue.MILLISECOND.SECOND * 0.5);
   }
 
   _handleFinallyOnCommentSubmit() {

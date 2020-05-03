@@ -2,6 +2,7 @@
 import {DateFormat} from '../../constants/enums';
 import {formatDate} from '../../utils/date';
 //
+import './film-details-comment-list.styles.scss';
 
 const createCommentTemplate = (comment) => {
   const {id, author, text, date, emotion} = comment;

@@ -1,8 +1,4 @@
-.film-details__new-comment {
-  user-select: none;
-}
-
-.film-details__new-comment--error {
+.film-details__comment--error {
   @keyframes shake {
     0%,
     100% {

@@ -3,6 +3,7 @@ import {bind} from '../../utils/components';
 //
 import View from '../abstract/view';
 import createFilmDetailsCommentListTemplate from './film-details-comment-list.template';
+import {TimeValue} from '../../constants/enums';
 
 export default class FilmDetailsCommentListView extends View {
   constructor(comments) {
@@ -10,6 +11,8 @@ export default class FilmDetailsCommentListView extends View {
 
     this._comments = comments;
     this._placeholder = null;
+
+    this._errorTimeout = null;
 
     this.onCommentDeleteButtonClick = null;
 
@@ -60,7 +63,8 @@ export default class FilmDetailsCommentListView extends View {
 
     if (this.onCommentDeleteButtonClick) {
       this.onCommentDeleteButtonClick(evt)
-        .finally(this._handleFinishedOnCommentDeleteButtonClick.bind(this, evt));
+        .catch(this._handleRejectedOnCommentDeleteButtonClick.bind(this, evt))
+        .finally(this._handleFulfilledOnCommentDeleteButtonClick.bind(this, evt));
     }
   }
 
@@ -80,7 +84,7 @@ export default class FilmDetailsCommentListView extends View {
     comment.style.cursor = `wait`;
   }
 
-  _handleFinishedOnCommentDeleteButtonClick(evt) {
+  _handleFulfilledOnCommentDeleteButtonClick(evt) {
     const {target} = evt;
 
     target.disabled = false;
@@ -94,5 +98,17 @@ export default class FilmDetailsCommentListView extends View {
     comment.style.opacity = ``;
     comment.style.userSelect = ``;
     comment.style.cursor = ``;
+  }
+
+  _handleRejectedOnCommentDeleteButtonClick(evt) {
+    const {target} = evt;
+    const comment = target.closest(`.film-details__comment`);
+
+    comment.classList.add(`film-details__comment--error`);
+
+    clearTimeout(this._errorTimeout);
+
+    this._errorTimeout = setTimeout(() => comment.classList.remove(`film-details__comment--error`), TimeValue.MILLISECOND.SECOND * 0.5);
+
   }
 }
