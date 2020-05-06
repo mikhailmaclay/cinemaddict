@@ -16,7 +16,6 @@ import {
   filterWatchlistFilms
 } from './utils/filtering';
 import {getSortingFunctionFromSearch} from './utils/url';
-import {reduceFilmsToStatistic} from './utils/reducing';
 //
 import FilmsModel from './models/films';
 import NotificationModel from './models/notification';
@@ -184,8 +183,8 @@ Router.addRoute(PathNameRegExp.STATISTIC_PAGE, () => {
   statisticPagePresenter.render();
 
   return () => {
+    filmsModel.removeStateHandler(filterHistoryFilms);
     filmsModel.removeStateHandler(periodFilteringFunction);
-    filmsModel.removeStateHandler(reduceFilmsToStatistic);
 
     statisticPagePresenter.remove();
   };
@@ -225,7 +224,9 @@ window.addEventListener(`load`, () => {
     });
 });
 
-/* TODO
-     Можно поколдовать с закрытием FilmDetailsView, чтобы был переход по истории назад, в случае, если предыдущая запись
-     соответствуют MAIN_PAGE, WATCHLIST_PAGE и т. п., или на MAIN_PAGE, в случае, если нет.
+/*
+Для проверяющего наставника:
+То ли Chrome глючит, то ли что, но частенько приходится переключать статус сети в инструментах разработчика, так как SW
+ошибочно выдает что нет фильмов или не обрабатывает маршрут. Так что лучше всего тестить с отключенным доступом к сети,
+там все работает отлично.
 */

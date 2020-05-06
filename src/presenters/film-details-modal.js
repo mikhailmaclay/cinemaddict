@@ -115,6 +115,8 @@ export default class FilmDetailsModalPresenter extends RootPresenter {
     const film = this.__filmsModel.readFilm(this._filmID);
 
     this.__filmDetailsCommentListView.comments = film.comments;
+
+    this._readComments();
   }
 
   _handleOnline() {

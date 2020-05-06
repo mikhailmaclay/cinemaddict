@@ -116,7 +116,7 @@ const Router = {
             Обработка обещаний.
           */
           // eslint-disable-next-line no-proto
-          if (onLeaveHandler.__proto__.constructor.name === `Promise`) {
+          if (onLeaveHandler instanceof Promise) {
             onLeaveHandler.then((clearFunction) => clearFunction && clearFunction());
           } else {
             onLeaveHandler(state, regExpResult);

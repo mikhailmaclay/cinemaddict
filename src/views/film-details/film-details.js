@@ -38,9 +38,7 @@ export default class FilmDetailsView extends View {
 
     super.rerender();
 
-    queueMicrotask(() => {
-      this.element.scrollTop = scrollTop;
-    });
+    this.element.scrollTop = scrollTop;
   }
 
   remove() {
