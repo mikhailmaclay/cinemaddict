@@ -11,6 +11,7 @@ export default class FilmDetailsCommentListView extends View {
 
     this._comments = comments;
     this._placeholder = null;
+    this._isOnlyReadMode = true;
 
     this._errorTimeout = null;
 
@@ -27,7 +28,7 @@ export default class FilmDetailsCommentListView extends View {
       return this._placeholder;
     }
 
-    return createFilmDetailsCommentListTemplate(this._comments);
+    return createFilmDetailsCommentListTemplate(this._comments, this._isOnlyReadMode);
   }
 
   set comments(comments) {
@@ -38,6 +39,12 @@ export default class FilmDetailsCommentListView extends View {
 
   set placeholder(value) {
     this._placeholder = value;
+
+    this.rerender();
+  }
+
+  set isOnlyReadMode(value) {
+    this._isOnlyReadMode = Boolean(value);
 
     this.rerender();
   }

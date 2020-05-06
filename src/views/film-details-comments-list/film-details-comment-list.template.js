@@ -4,7 +4,7 @@ import {formatDate} from '../../utils/date';
 //
 import './film-details-comment-list.styles.scss';
 
-const createCommentTemplate = (comment) => {
+const createCommentTemplate = (comment, isOnlyReadMode) => {
   const {id, author, text, date, emotion} = comment;
 
   return (
@@ -15,16 +15,16 @@ const createCommentTemplate = (comment) => {
       <div>
         <p class="film-details__comment-text">${text}</p>
         <p class="film-details__comment-info">
-          <span class="film-details__comment-author">${author}</span>
+          ${author ? `<span class="film-details__comment-author">${author}</span>` : ``}
           <span class="film-details__comment-day">${formatDate(date, DateFormat.FROM_NOW)}</span>
-          <button class="film-details__comment-delete" data-comment-id="${id}">Delete</button>
+          ${isOnlyReadMode ? `` : `<button class="film-details__comment-delete" data-comment-id="${id}">Delete</button>`}
         </p>
       </div>
     </li>`
   );
 };
 
-const createFilmDetailsCommentListTemplate = (comments) => {
+const createFilmDetailsCommentListTemplate = (comments, isOnlyReadMode) => {
   const areCommentsRead = !comments.hasOwnProperty(`length`);
   comments = areCommentsRead ? Object.values(comments) : comments;
 
@@ -38,7 +38,7 @@ const createFilmDetailsCommentListTemplate = (comments) => {
 
   return (
     `<ul class="film-details__comments-list">
-      ${comments.map(createCommentTemplate).join(`\n`)}
+      ${comments.map((comment) => createCommentTemplate(comment, isOnlyReadMode)).join(`\n`)}
     </ul>`
   );
 };

@@ -1,5 +1,4 @@
 // Constants and utils
-import {convertMapToArray} from '../utils/objects';
 import {selectFilmCountsByFilterCategories} from '../utils/selectors';
 import {bind} from '../utils/components';
 import {reduceFilmsToRank} from '../utils/reducing';
@@ -12,8 +11,7 @@ import MainNavigationView from '../views/main-navigation/main-navigation';
 import RootPresenter from './root';
 
 /*
-  Общий представитель, целью которого являются отрисовать общие представления для всех страниц, а также сформировать данные
-  для меню сайта.
+  Общий представитель, целью которого являются отрисовать общие представления для всех страниц.
 */
 
 export default class LayoutPresenter extends RootPresenter {
@@ -38,7 +36,7 @@ export default class LayoutPresenter extends RootPresenter {
 
     this.__filmsModel.addChangeHandler(this.__handleFilmsModelChange);
 
-    const films = convertMapToArray(this.__filmsModel.state);
+    const films = this.__filmsModel.state;
 
     this.__mainNavigationView.filmCountsByFilterCategories = selectFilmCountsByFilterCategories(films);
     this.__footerView.filmsCount = films && films.length;
@@ -64,16 +62,17 @@ export default class LayoutPresenter extends RootPresenter {
   }
 
   __handleFilmsModelChange() {
-    const isRead = Boolean(this.__filmsModel.state);
+    const films = this.__filmsModel.state;
+    const isRead = Boolean(films);
 
     if (isRead) {
-      this.__profileView.rank = reduceFilmsToRank(convertMapToArray(this.__filmsModel.state));
+      this.__profileView.rank = reduceFilmsToRank(films);
       this.__profileView.render(this.__headerView.element);
     } else {
       this.__profileView.remove();
     }
 
-    this.__mainNavigationView.filmCountsByFilterCategories = selectFilmCountsByFilterCategories(convertMapToArray(this.__filmsModel.state));
-    this.__footerView.filmsCount = this.__filmsModel.state && convertMapToArray(this.__filmsModel.state).length;
+    this.__mainNavigationView.filmCountsByFilterCategories = selectFilmCountsByFilterCategories(films);
+    this.__footerView.filmsCount = isRead && films.length;
   }
 }

@@ -1,6 +1,6 @@
 // Constants and utils
-import {HTTPMethod, HTTPResponseStatus} from './constants/enums';
-import {Comment, Film} from './utils/adapters';
+import {HTTPMethod, HTTPResponseStatus} from '../constants/enums';
+import {Comment, Film} from './adapters';
 
 export default class API {
   constructor(endPoint, authorization) {
@@ -25,12 +25,6 @@ export default class API {
       .then((rawFilm) => new Film(rawFilm));
   }
 
-  readComments(filmID) {
-    return this._load({url: `comments/${filmID}`})
-      .then((response) => response.json())
-      .then((rawComments) => rawComments.map((rawComment) => new Comment(rawComment)));
-  }
-
   createComment(filmID, comment) {
     return this._load({
       url: `comments/${filmID}`,
@@ -39,7 +33,13 @@ export default class API {
       headers: new Headers({'Content-Type': `application/json`})
     })
       .then((response) => response.json())
-      .then(({movie: rawFilm}) => new Film(rawFilm));
+      .then(({comments: rawComments}) => rawComments.map((rawComment) => new Comment(rawComment)));
+  }
+
+  readComments(filmID) {
+    return this._load({url: `comments/${filmID}`})
+      .then((response) => response.json())
+      .then((rawComments) => rawComments.map((rawComment) => new Comment(rawComment)));
   }
 
   deleteComment(commentID) {
@@ -47,6 +47,17 @@ export default class API {
       url: `comments/${commentID}`,
       method: HTTPMethod.DELETE
     });
+  }
+
+  sync(films) {
+    return this._load({
+      url: `movies/sync`,
+      method: HTTPMethod.POST,
+      body: JSON.stringify(films.map((film) => film.getRaw())),
+      headers: new Headers({'Content-Type': `application/json`})
+    })
+      .then((response) => response.json())
+      .then(({updated: updatedFilms}) => updatedFilms.map((updatedFilm) => new Film(updatedFilm)));
   }
 
   _load({url, method = HTTPMethod.GET, body = null, headers = new Headers()}) {

@@ -121,7 +121,8 @@ export default class FilmListView extends View {
       target.style.opacity = `0.3`;
       target.style.cursor = `wait`;
 
-      this._onWatchlistButtonClick(evt);
+      this._onWatchlistButtonClick(evt)
+        .finally(this._handleOnSomeButtonClickFinally.bind(this, evt));
     }
   }
 
@@ -133,7 +134,8 @@ export default class FilmListView extends View {
       target.style.opacity = `0.3`;
       target.style.cursor = `wait`;
 
-      this._onWatchedButtonClick(evt);
+      this._onWatchedButtonClick(evt)
+        .finally(this._handleOnSomeButtonClickFinally.bind(this, evt));
     }
   }
 
@@ -145,8 +147,17 @@ export default class FilmListView extends View {
       target.style.opacity = `0.3`;
       target.style.cursor = `wait`;
 
-      this._onFavoriteButtonClick(evt);
+      this._onFavoriteButtonClick(evt)
+        .finally(this._handleOnSomeButtonClickFinally.bind(this, evt));
     }
+  }
+
+  _handleOnSomeButtonClickFinally(evt) {
+    const {target} = evt;
+
+    target.disabled = false;
+    target.style.opacity = ``;
+    target.style.cursor = ``;
   }
 }
 

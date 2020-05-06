@@ -27,7 +27,7 @@ const createFilmCardTemplate = (film) => {
         ${genres[FIRST_ARRAY_ELEMENT_INDEX] ? `<span class="film-card__genre">${genres[FIRST_ARRAY_ELEMENT_INDEX]}</span>` : ``}
       </p>
       <a href="/films/${id}">
-        <img src="${poster}" alt="${title}" class="film-card__poster">
+        <img src="/${poster}" alt="${title}" class="film-card__poster">
       </a>
       <p class="film-card__description">${cutText(description, Config.FILM_CARD_DESCRIPTION_MAX_LENGTH)}</p>
       <a href="/films/${id}" class="film-card__comments">${comments.length} ${pluralize(comments.length, [`comment`, `comments`])}</a>

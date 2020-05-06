@@ -11,10 +11,13 @@ const Config = {
   ],
   END_POINT: `https://11.ecmascript.pages.academy/cinemaddict`,
   AUTHORIZATION: `Basic dXNlckBwYXN`,
-  STORE_PREFIX: `cinemaddict-localstorage`,
-  STORE_VER: `v1`
+  LOCAL_STORE_PREFIX: `cinemaddict-local-storage`,
+  LOCAL_STORE_VER: `v1`,
+  SESSION_STORE_PREFIX: `cinemaddict-session-storage`,
+  SESSION_STORE_VER: `v1`
 };
 
-Config.STORE_NAME = `${Config.STORE_PREFIX}-${Config.STORE_VER}`;
+Config.LOCAL_STORE_NAME = `${Config.LOCAL_STORE_PREFIX}-${Config.LOCAL_STORE_VER}`;
+Config.SESSION_STORE_NAME = `${Config.SESSION_STORE_PREFIX}-${Config.SESSION_STORE_VER}`;
 
 export default Config;

@@ -1,7 +1,6 @@
 // Constants and utils
 import {RenderPosition} from '../constants/enums';
 import {reduceFilmsToCountsByGenres, reduceFilmsToRank, reduceFilmsToStatistic} from '../utils/reducing';
-import {convertMapToArray} from '../utils/objects';
 //
 import LayoutPresenter from './layout';
 import StatisticView from '../views/statistic/statistic';
@@ -21,7 +20,7 @@ export default class StatisticPagePresenter extends LayoutPresenter {
     super.render();
 
     this.__statisticView.data = reduceFilmsToStatistic(this.__filmsModel.handledState);
-    this.__statisticRankView.rank = reduceFilmsToRank(convertMapToArray(this.__filmsModel.state));
+    this.__statisticRankView.rank = reduceFilmsToRank(this.__filmsModel.state);
     this.__statisticChartView.watchedFilmsCountsByGenres = reduceFilmsToCountsByGenres(this.__filmsModel.handledState);
 
     this.__statisticView.render(this.__mainView.element);
@@ -41,7 +40,7 @@ export default class StatisticPagePresenter extends LayoutPresenter {
     super.__handleFilmsModelChange();
 
     this.__statisticView.data = reduceFilmsToStatistic(this.__filmsModel.handledState);
-    this.__statisticRankView.rank = reduceFilmsToRank(convertMapToArray(this.__filmsModel.state));
+    this.__statisticRankView.rank = reduceFilmsToRank(this.__filmsModel.state);
     this.__statisticChartView.watchedFilmsCountsByGenres = reduceFilmsToCountsByGenres(this.__filmsModel.handledState);
   }
 }

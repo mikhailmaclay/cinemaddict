@@ -1,15 +1,18 @@
+// Constants and utils
 import {FIRST_ARRAY_ELEMENT_INDEX} from '../constants/common';
 
-export const reduceArrayToMapByID = (map, item) => {
-  const {id} = item;
+export const convertArrayToMapByID = (array) => {
+  return array.reduce((map, item) => {
+    const {id} = item;
 
-  if (!id) {
+    if (!id) {
+      return map;
+    }
+
+    map[item.id] = item;
+
     return map;
-  }
-
-  map[item.id] = item;
-
-  return map;
+  }, {});
 };
 
 export const convertMapToArray = (map) => {

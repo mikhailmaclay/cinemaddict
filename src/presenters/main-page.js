@@ -1,5 +1,4 @@
 // Constants and utils
-import {convertMapToArray} from '../utils/objects';
 import {selectMostCommentedFilms, selectTopRatedFilms} from '../utils/selectors';
 import {bind} from '../utils/components';
 //
@@ -19,7 +18,7 @@ export default class MainPagePresenter extends FilmCatalogPresenter {
   render() {
     super.render();
 
-    const films = convertMapToArray(this.__filmsModel.state);
+    const films = this.__filmsModel.state;
 
     this.__topRatedFilmListView.films = selectTopRatedFilms(films);
     this.__mostCommentedFilmListView.films = selectMostCommentedFilms(films);
@@ -44,7 +43,7 @@ export default class MainPagePresenter extends FilmCatalogPresenter {
   __handleFilmsModelChange() {
     super.__handleFilmsModelChange();
 
-    const films = convertMapToArray(this.__filmsModel.state);
+    const films = this.__filmsModel.state;
 
     this.__topRatedFilmListView.films = selectTopRatedFilms(films);
     this.__mostCommentedFilmListView.films = selectMostCommentedFilms(films);

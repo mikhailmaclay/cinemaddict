@@ -4,12 +4,12 @@ import {nanoid} from 'nanoid';
 export class Film {
   constructor(data) {
     this.id = data[`id`];
-    this.comments = {length: data[`comments`].length};
+    this.comments = data[`comments`];
     this.filmInfo = {
       title: data[`film_info`][`title`],
       alternativeTitle: data[`film_info`][`alternative_title`],
       totalRating: data[`film_info`][`total_rating`],
-      poster: `/${data[`film_info`][`poster`]}`,
+      poster: `${data[`film_info`][`poster`]}`,
       ageRating: data[`film_info`][`age_rating`],
       director: data[`film_info`][`director`],
       writers: data[`film_info`][`writers`],
@@ -23,7 +23,7 @@ export class Film {
       description: data[`film_info`][`description`]
     };
     this.userDetails = {
-      watchingDate: data[`user_details`][`watching_date`],
+      watchingDate: data[`user_details`][`watching_date`] ? new Date(data[`user_details`][`watching_date`]) : null,
       isInWatchlist: data[`user_details`][`watchlist`],
       isAlreadyWatched: data[`user_details`][`already_watched`],
       isFavorite: data[`user_details`][`favorite`]
@@ -54,7 +54,7 @@ export class Film {
       "user_details": {
         "watchlist": this.userDetails.isInWatchlist,
         "already_watched": this.userDetails.isAlreadyWatched,
-        "watching_date": this.userDetails.watchingDate,
+        "watching_date": this.userDetails.watchingDate && this.userDetails.watchingDate.toISOString(),
         "favorite": this.userDetails.isFavorite
       }
     };
@@ -66,7 +66,7 @@ export class Comment {
     this.id = data[`id`] || nanoid();
     this.author = data[`author`];
     this.text = data[`comment`] || data.text;
-    this.date = data[`date`] || new Date();
+    this.date = (data[`date`] && new Date(data[`date`])) || new Date();
     this.emotion = data[`emotion`];
   }
 

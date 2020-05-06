@@ -16,7 +16,6 @@ import {
   filterWatchlistFilms
 } from './utils/filtering';
 import {getSortingFunctionFromSearch} from './utils/url';
-import {convertMapToArray, reduceArrayToMapByID} from './utils/objects';
 import {reduceFilmsToStatistic} from './utils/reducing';
 //
 import FilmsModel from './models/films';
@@ -26,26 +25,32 @@ import FilmCatalogPagePresenter from './presenters/film-catalog-page';
 import FilmDetailsModalPresenter from './presenters/film-details-modal';
 import StatisticPagePresenter from './presenters/statistic-page';
 import NotFoundPagePresenter from './presenters/not-found-page';
-import API from './api';
+import API from './utils/api';
 import './styles.scss';
+import Provider from './utils/provider';
+import Store from './utils/store';
 
+export const store = new Store(Config.LOCAL_STORE_NAME, window.localStorage);
+export const sessionStore = new Store(Config.SESSION_STORE_NAME, window.sessionStorage);
 export const api = new API(Config.END_POINT, Config.AUTHORIZATION);
+export const provider = new Provider(api, store);
 
-const readFilmsRequest = api.readFilms().then((films) => {
-  filmsModel.state = films.reduce(reduceArrayToMapByID, {});
+const readFilmsRequest = provider.readFilms().then((films) => {
+  filmsModel.state = films;
 }).catch((reason) => {
-  filmsModel.state = {};
+  filmsModel.state = [];
   notificationModel.set(NotificationTimeValue.LONG, ...Notification.READ_FILMS_FAILURE);
 
   throw reason;
 });
 
 const filmsModel = new FilmsModel();
-filmsModel.addStateHandler(convertMapToArray);
-
 const notificationModel = new NotificationModel();
 
-notificationModel.set(NotificationTimeValue.LONG, ...Notification.WELCOME);
+if (!sessionStore.getItem(`isWelcomeShown`)) {
+  notificationModel.set(NotificationTimeValue.LONG, ...Notification.WELCOME);
+  sessionStore.setItem(`isWelcomeShown`, true);
+}
 
 const mainPagePresenter = new MainPagePresenter(Config.ROOT, filmsModel, notificationModel);
 const filmCatalogPagePresenter = new FilmCatalogPagePresenter(Config.ROOT, filmsModel, notificationModel);
@@ -197,6 +202,11 @@ Router.addRoute(PathNameRegExp.NOT_FOUND_PAGE, () => {
 window.addEventListener(`online`, () => {
   document.title = document.title.replace(` [offline]`, ``);
 
+  provider.sync()
+    .then((films) => {
+      filmsModel.state = films;
+    });
+
   notificationModel.set(NotificationTimeValue.LONG, ...Notification.CONNECTION_RESTORED);
 });
 
@@ -206,16 +216,14 @@ window.addEventListener(`offline`, () => {
   notificationModel.set(NotificationTimeValue.LONG, ...Notification.CONNECTION_LOST);
 });
 
-/*
-  Пока что после закрытия FilmDetailsView осуществляется переход на главную страницу.
-
-  Если зайти на страницу, удалить запись о ней из истории и обновить, то в истории появится запись без заголовка.
-  P. S. Судя по всему это со всеми сайтами так, пробовал на fortnite.com.
-
-  Запрос несуществущей страницы переадресуется на NOT_FOUND_PAGE, но в history создаются две записи, одна для MAIN_PAGE,
-  вторая для NOT_FOUND.
-  P. S. В моем прошлом проекте с react-router-dom такой же эффект.
-*/
+window.addEventListener(`load`, () => {
+  navigator.serviceWorker.register(`/service-worker.js`)
+    .then(() => {
+      // Действие, в случае успешной регистрации ServiceWorker
+    }).catch(() => {
+    // Действие, в случае ошибки при регистрации ServiceWorker
+    });
+});
 
 /* TODO
      Можно поколдовать с закрытием FilmDetailsView, чтобы был переход по истории назад, в случае, если предыдущая запись

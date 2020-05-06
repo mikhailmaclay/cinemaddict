@@ -27,7 +27,7 @@ export default class Model {
       return null;
     }
 
-    return compose(...this._stateHandlers)(this.__state);
+    return compose(...this._stateHandlers)(this.state);
   }
 
   addStateHandler(stateHandler) {

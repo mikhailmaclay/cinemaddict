@@ -1,16 +1,18 @@
 // Libraries
 import he from 'he';
 // Constants and utils
-import {Notification, NotificationTimeValue, RenderPosition} from '../constants/enums';
+import {RenderPosition} from '../constants/enums';
 import {Comment} from '../utils/adapters';
 import {bind} from '../utils/components';
-import {cloneObject, reduceArrayToMapByID} from '../utils/objects';
+import {cloneObject} from '../utils/objects';
 //
 import FilmDetailsView from '../views/film-details/film-details';
 import FilmDetailsNewCommentView from '../views/film-details-new-comment/film-details-new-comment';
 import FilmDetailsCommentListView from '../views/film-details-comments-list/film-details-comment-list';
 import RootPresenter from './root';
-import {api} from '../index';
+import FilmDetailsControlsView from '../views/film-details-controls/film-details-controls';
+import FilmDetailsInfoWrapView from '../views/film-details-info-wrap/film-details-info-wrap';
+import {provider} from '../index';
 
 export default class FilmDetailsModalPresenter extends RootPresenter {
   constructor(container, filmsModel, notificationModel) {
@@ -21,11 +23,16 @@ export default class FilmDetailsModalPresenter extends RootPresenter {
     this.__filmsModel = filmsModel;
 
     this.__filmDetailsView = new FilmDetailsView(null);
+    this.__filmDetailsInfoWrapView = new FilmDetailsInfoWrapView(null);
+    this.__filmDetailsControls = new FilmDetailsControlsView({});
     this.__filmDetailsCommentListView = new FilmDetailsCommentListView(null);
     this.__filmDetailsNewCommentView = new FilmDetailsNewCommentView();
 
     bind(this,
-        this.__handleFilmsModelChange,
+        this.__handleFilmCommentsFilmsModelChange,
+        this.__handleFilmUserDetailsFilmsModelChange,
+        this._handleOnline,
+        this._handleOffline,
         this._handleWatchlistCheckboxChange,
         this._handleWatchedCheckboxChange,
         this._handleFavoriteCheckboxChange,
@@ -41,25 +48,38 @@ export default class FilmDetailsModalPresenter extends RootPresenter {
   render(filmID) {
     super.render();
 
-    this.__filmsModel.addChangeHandler(this.__handleFilmsModelChange);
+    this.__filmsModel.addFilmCommentsChangeHandler(this.__handleFilmCommentsFilmsModelChange);
+    this.__filmsModel.addFilmUserDetailsChangeHandler(this.__handleFilmUserDetailsFilmsModelChange);
+    window.addEventListener(`online`, this._handleOnline);
+    window.addEventListener(`offline`, this._handleOffline);
 
     if (filmID) {
       this._filmID = filmID; // Записываю в свойства экземпляра класса, чтобы можно было использовать при перерисовке (rerender).
     }
 
-    const film = this.__filmsModel.state[this._filmID];
+    const film = this.__filmsModel.readFilm(this._filmID);
 
     this.__filmDetailsView.film = film;
+    this.__filmDetailsInfoWrapView.filmInfo = film.filmInfo;
+    this.__filmDetailsControls.userDetails = film.userDetails;
     this.__filmDetailsCommentListView.comments = film.comments;
-    this.__filmDetailsView.onWatchlistCheckboxChange = this._handleWatchlistCheckboxChange;
-    this.__filmDetailsView.onWatchedCheckboxChange = this._handleWatchedCheckboxChange;
-    this.__filmDetailsView.onFavoriteCheckboxChange = this._handleFavoriteCheckboxChange;
+    this.__filmDetailsCommentListView.isOnlyReadMode = !window.navigator.onLine;
+
+    this.__filmDetailsControls.onWatchlistCheckboxChange = this._handleWatchlistCheckboxChange;
+    this.__filmDetailsControls.onWatchedCheckboxChange = this._handleWatchedCheckboxChange;
+    this.__filmDetailsControls.onFavoriteCheckboxChange = this._handleFavoriteCheckboxChange;
+
     this.__filmDetailsNewCommentView.onCommentSubmit = this._handleCommentSubmit;
     this.__filmDetailsCommentListView.onCommentDeleteButtonClick = this._handleCommentDeleteButtonClick;
 
     this.__filmDetailsView.render(this.__container);
-    this.__filmDetailsCommentListView.render(() => this.__filmDetailsView.title, RenderPosition.AFTER);
-    this.__filmDetailsNewCommentView.render(() => this.__filmDetailsView.commentsWrap);
+    this.__filmDetailsInfoWrapView.render(this.__filmDetailsView.topContainer);
+    this.__filmDetailsControls.render(this.__filmDetailsView.topContainer);
+    this.__filmDetailsCommentListView.render(this.__filmDetailsView.title, RenderPosition.AFTER);
+
+    if (window.navigator.onLine) {
+      this.__filmDetailsNewCommentView.render(this.__filmDetailsView.commentsWrap);
+    }
 
     this._readComments();
   }
@@ -74,34 +94,47 @@ export default class FilmDetailsModalPresenter extends RootPresenter {
   }
 
   _readComments() {
-    const film = this.__filmsModel.state[this._filmID];
-    const areCommentsRead = !film.comments.hasOwnProperty(`length`);
+    const areCommentsRead = !Array.isArray(this.__filmsModel.readComments(this._filmID));
 
     if (!areCommentsRead) {
-      api.readComments(this._filmID)
+      provider.readComments(this._filmID)
         .then(this._handleReadCommentsFulfilled)
         .catch(this._handleReadCommentsRejected);
     }
+
+    this.__filmDetailsCommentListView.placeholder = null;
   }
 
-  __handleFilmsModelChange() {
-    const film = this.__filmsModel.state[this._filmID];
+  __handleFilmUserDetailsFilmsModelChange() {
+    const film = this.__filmsModel.readFilm(this._filmID);
 
-    this.__filmDetailsView.film = film;
+    this.__filmDetailsControls.userDetails = film.userDetails;
+  }
+
+  __handleFilmCommentsFilmsModelChange() {
+    const film = this.__filmsModel.readFilm(this._filmID);
+
     this.__filmDetailsCommentListView.comments = film.comments;
-    this.__filmDetailsNewCommentView.rerender();
+  }
 
-    this._readComments();
+  _handleOnline() {
+    this.__filmDetailsNewCommentView.render(this.__filmDetailsView.commentsWrap);
+    this.__filmDetailsCommentListView.isOnlyReadMode = !window.navigator.onLine;
+  }
+
+  _handleOffline() {
+    this.__filmDetailsNewCommentView.remove();
+    this.__filmDetailsCommentListView.isOnlyReadMode = !window.navigator.onLine;
   }
 
   _handleWatchlistCheckboxChange(evt) {
     const {target} = evt;
     const {checked: value} = target;
 
-    const film = cloneObject(this.__filmsModel.state[this._filmID], true);
+    const film = cloneObject(this.__filmsModel.readFilm(this._filmID), true);
     film.userDetails.isInWatchlist = value;
 
-    return api.updateFilm(this._filmID, film)
+    return provider.updateFilm(this._filmID, film)
       .then(this._handleUpdateFilmFulfilled);
   }
 
@@ -109,10 +142,11 @@ export default class FilmDetailsModalPresenter extends RootPresenter {
     const {target} = evt;
     const {checked: value} = target;
 
-    const film = cloneObject(this.__filmsModel.state[this._filmID], true);
+    const film = cloneObject(this.__filmsModel.readFilm(this._filmID), true);
     film.userDetails.isAlreadyWatched = value;
+    film.userDetails.watchingDate = value ? new Date() : null;
 
-    return api.updateFilm(this._filmID, film)
+    return provider.updateFilm(this._filmID, film)
       .then(this._handleUpdateFilmFulfilled);
   }
 
@@ -120,10 +154,10 @@ export default class FilmDetailsModalPresenter extends RootPresenter {
     const {target} = evt;
     const {checked: value} = target;
 
-    const film = cloneObject(this.__filmsModel.state[this._filmID], true);
+    const film = cloneObject(this.__filmsModel.readFilm(this._filmID), true);
     film.userDetails.isFavorite = value;
 
-    return api.updateFilm(this._filmID, film)
+    return provider.updateFilm(this._filmID, film)
       .then(this._handleUpdateFilmFulfilled);
   }
 
@@ -132,13 +166,8 @@ export default class FilmDetailsModalPresenter extends RootPresenter {
     const formData = new FormData(target);
     const comment = new Comment({text: he.encode(formData.get(`comment-text`)), emotion: he.encode(formData.get(`comment-emotion`))});
 
-    return api.createComment(this._filmID, comment)
-      .then(this._handleCreateCommentFulfilled)
-      .catch((reason) => {
-        this.__notificationModel.set(NotificationTimeValue.LONG, ...Notification.CREATE_COMMENT_FAILURE);
-
-        throw reason;
-      });
+    return provider.createComment(this._filmID, comment)
+      .then(this._handleCreateCommentFulfilled);
   }
 
   _handleCommentDeleteButtonClick(evt) {
@@ -146,27 +175,16 @@ export default class FilmDetailsModalPresenter extends RootPresenter {
     const {commentId: commentID} = target.dataset;
 
 
-    return api.deleteComment(commentID)
+    return provider.deleteComment(this._filmID, commentID)
       .then(() => {
-        const comments = cloneObject(this.__filmsModel.state[this._filmID].comments);
-        delete comments[commentID];
-
-        this.__filmsModel.updateFilm(this._filmID, {comments});
-      })
-      .catch((reason) => {
-        this.__notificationModel.set(NotificationTimeValue.LONG, ...Notification.DELETE_COMMENT_FAILURE);
-
-        throw reason;
+        this.__filmsModel.deleteComment(this._filmID, commentID);
       });
   }
 
   _handleReadCommentsFulfilled(comments) {
     this.__filmDetailsCommentListView.placeholder = null;
 
-    const newFilm = cloneObject(this.__filmsModel.state[this._filmID]);
-
-    newFilm.comments = comments.reduce(reduceArrayToMapByID, {});
-    this.__filmsModel.updateFilm(this._filmID, newFilm);
+    this.__filmsModel.updateComments(this._filmID, comments);
   }
 
   _handleReadCommentsRejected(reason) {
@@ -179,7 +197,7 @@ export default class FilmDetailsModalPresenter extends RootPresenter {
     this.__filmsModel.updateFilm(this._filmID, film);
   }
 
-  _handleCreateCommentFulfilled(film) {
-    this.__filmsModel.updateFilm(this._filmID, film);
+  _handleCreateCommentFulfilled(comments) {
+    this.__filmsModel.updateComments(this._filmID, comments);
   }
 }
