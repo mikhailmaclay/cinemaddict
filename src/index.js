@@ -183,7 +183,6 @@ Router.addRoute(PathNameRegExp.STATISTIC_PAGE, () => {
   const searchRegExpResult = window.location.search.match(SearchRegExp.PERIOD);
 
   const periodRange = searchRegExpResult && searchRegExpResult[PERIOD_RANGE_ARRAY_INDEX];
-  console.log(periodRange);
   const periodFilteringFunction = (films) => filterFilmsByWatchingDate(films, periodRange);
 
   filmsModel.addStateHandler(filterHistoryFilms);
