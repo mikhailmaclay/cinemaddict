@@ -36,7 +36,7 @@ export const reduceFilmsToRank = (films) => {
   for (let rankConfig of Config.PROFILE_RANK) {
     const {name, fromWatchedFilmsCount} = rankConfig;
 
-    if (watchedFilms.length > fromWatchedFilmsCount) {
+    if (watchedFilms.length >= fromWatchedFilmsCount) {
       rank = name;
     }
   }

@@ -2,8 +2,11 @@
 import {SearchRegExp, SortingType} from '../constants/enums';
 import {sortFilmsByDate, sortFilmsByRating} from './sorting';
 
+const SORTING_TYPE_ARRAY_INDEX = 1;
+
 export const getSortingFunctionFromSearch = () => {
-  const sortingType = window.location.search.match(SearchRegExp.SORTING) && window.location.search.match(SearchRegExp.SORTING).groups && window.location.search.match(SearchRegExp.SORTING).groups.sortingType;
+  const searchRegExpResult = window.location.search.match(SearchRegExp.SORTING);
+  const sortingType = searchRegExpResult && searchRegExpResult[SORTING_TYPE_ARRAY_INDEX];
 
   switch (sortingType) {
     case SortingType.DATE:

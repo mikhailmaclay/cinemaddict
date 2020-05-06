@@ -48,7 +48,6 @@ export default class FilmDetailsView extends View {
   }
 
   __selectElements() {
-    this.title = this.element.querySelector(`.film-details__comments-title`);
     this.commentsWrap = this.element.querySelector(`.film-details__comments-wrap`);
     this.topContainer = this.element.querySelector(`.form-details__top-container`);
   }

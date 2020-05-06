@@ -1,15 +1,11 @@
+// Libraries
+import NamedRegExp from 'named-regexp-groups';
+
 export const RenderPosition = {
   START: `START`,
   END: `END`,
   BEFORE: `BEFORE`,
   AFTER: `AFTER`
-};
-
-export const Emotion = {
-  SMILE: `smile`,
-  SLEEPING: `sleeping`,
-  PUKE: `puke`,
-  ANGRY: `angry`
 };
 
 export const DateFormat = {
@@ -37,7 +33,7 @@ export const PathNameRegExp = {
   WATCHLIST_PAGE: /\/watchlist\/?$/,
   HISTORY_PAGE: /\/history\/?$/,
   FAVORITES_PAGE: /\/favorites\/?$/,
-  FILM_DETAILS_MODAL: new RegExp(`\\/films\\/(?<filmID>[0-9]+)$`), // Из-за Eslint пришлось сотворить эту ахинею.
+  FILM_DETAILS_MODAL: new NamedRegExp(/\/films\/(?<filmID>[0-9]+)$/),
   STATISTIC_PAGE: /\/stats\/?$/,
   NOT_FOUND_PAGE: /\/404\/?$/
 };
@@ -50,10 +46,10 @@ export const TimePeriodName = {
 };
 
 export const SearchRegExp = {
-  SORTING: new RegExp(`sorting=(?<sortingType>[a-z0-9]+)`), // Из-за Eslint пришлось сотворить эту ахинею.
+  SORTING: new NamedRegExp(/sorting=(?<sortingType>[a-z0-9]+)/),
   SORTING_DATE: /sorting=date/,
   SORTING_RATING: /sorting=rating/,
-  PERIOD: new RegExp(`period=(?<periodRange>[a-z0-9]+)`), // Из-за Eslint пришлось сотворить эту ахинею.
+  PERIOD: new NamedRegExp(/period=(?<periodRange>[a-z0-9]+)/),
   PERIOD_TODAY: /period=today/,
   PERIOD_WEEK: /period=week/,
   PERIOD_MONTH: /period=month/,

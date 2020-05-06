@@ -1,7 +1,6 @@
 // Libraries
 import he from 'he';
 // Constants and utils
-import {RenderPosition} from '../constants/enums';
 import {Comment} from '../utils/adapters';
 import {bind} from '../utils/components';
 import {cloneObject} from '../utils/objects';
@@ -12,6 +11,7 @@ import FilmDetailsCommentListView from '../views/film-details-comments-list/film
 import RootPresenter from './root';
 import FilmDetailsControlsView from '../views/film-details-controls/film-details-controls';
 import FilmDetailsInfoWrapView from '../views/film-details-info-wrap/film-details-info-wrap';
+import FilmDetailsCommentsCountView from '../views/film-details-comments-count/film-details-comments-count';
 import {provider} from '../index';
 
 export default class FilmDetailsModalPresenter extends RootPresenter {
@@ -24,7 +24,8 @@ export default class FilmDetailsModalPresenter extends RootPresenter {
 
     this.__filmDetailsView = new FilmDetailsView(null);
     this.__filmDetailsInfoWrapView = new FilmDetailsInfoWrapView(null);
-    this.__filmDetailsControls = new FilmDetailsControlsView({});
+    this.__filmDetailsControlsView = new FilmDetailsControlsView({});
+    this.__filmDetailsCommentsCountView = new FilmDetailsCommentsCountView(null);
     this.__filmDetailsCommentListView = new FilmDetailsCommentListView(null);
     this.__filmDetailsNewCommentView = new FilmDetailsNewCommentView();
 
@@ -58,24 +59,27 @@ export default class FilmDetailsModalPresenter extends RootPresenter {
     }
 
     const film = this.__filmsModel.readFilm(this._filmID);
+    const areCommentsRead = !Array.isArray(this.__filmsModel.readComments(this._filmID));
 
     this.__filmDetailsView.film = film;
     this.__filmDetailsInfoWrapView.filmInfo = film.filmInfo;
-    this.__filmDetailsControls.userDetails = film.userDetails;
+    this.__filmDetailsControlsView.userDetails = film.userDetails;
+    this.__filmDetailsCommentsCountView.commentsCount = areCommentsRead ? Object.values(film.comments).length : film.comments.length;
     this.__filmDetailsCommentListView.comments = film.comments;
     this.__filmDetailsCommentListView.isOnlyReadMode = !window.navigator.onLine;
 
-    this.__filmDetailsControls.onWatchlistCheckboxChange = this._handleWatchlistCheckboxChange;
-    this.__filmDetailsControls.onWatchedCheckboxChange = this._handleWatchedCheckboxChange;
-    this.__filmDetailsControls.onFavoriteCheckboxChange = this._handleFavoriteCheckboxChange;
+    this.__filmDetailsControlsView.onWatchlistCheckboxChange = this._handleWatchlistCheckboxChange;
+    this.__filmDetailsControlsView.onWatchedCheckboxChange = this._handleWatchedCheckboxChange;
+    this.__filmDetailsControlsView.onFavoriteCheckboxChange = this._handleFavoriteCheckboxChange;
 
     this.__filmDetailsNewCommentView.onCommentSubmit = this._handleCommentSubmit;
     this.__filmDetailsCommentListView.onCommentDeleteButtonClick = this._handleCommentDeleteButtonClick;
 
     this.__filmDetailsView.render(this.__container);
     this.__filmDetailsInfoWrapView.render(this.__filmDetailsView.topContainer);
-    this.__filmDetailsControls.render(this.__filmDetailsView.topContainer);
-    this.__filmDetailsCommentListView.render(this.__filmDetailsView.title, RenderPosition.AFTER);
+    this.__filmDetailsControlsView.render(this.__filmDetailsView.topContainer);
+    this.__filmDetailsCommentsCountView.render(this.__filmDetailsView.commentsWrap);
+    this.__filmDetailsCommentListView.render(this.__filmDetailsView.commentsWrap);
 
     if (window.navigator.onLine) {
       this.__filmDetailsNewCommentView.render(this.__filmDetailsView.commentsWrap);
@@ -108,13 +112,14 @@ export default class FilmDetailsModalPresenter extends RootPresenter {
   __handleFilmUserDetailsFilmsModelChange() {
     const film = this.__filmsModel.readFilm(this._filmID);
 
-    this.__filmDetailsControls.userDetails = film.userDetails;
+    this.__filmDetailsControlsView.userDetails = film.userDetails;
   }
 
   __handleFilmCommentsFilmsModelChange() {
     const film = this.__filmsModel.readFilm(this._filmID);
 
     this.__filmDetailsCommentListView.comments = film.comments;
+    this.__filmDetailsCommentsCountView.commentsCount = Object.values(film.comments).length;
 
     this._readComments();
   }

@@ -1,4 +1,5 @@
 // Constants and utils
+import NamedRegExp from 'named-regexp-groups';
 import Config from './constants/config';
 import {
   Notification,
@@ -28,6 +29,11 @@ import API from './utils/api';
 import './styles.scss';
 import Provider from './utils/provider';
 import Store from './utils/store';
+
+window.NamedRegExp = NamedRegExp;
+
+const FILM_ID_ARRAY_INDEX = 1;
+const PERIOD_RANGE_ARRAY_INDEX = 1;
 
 export const store = new Store(Config.LOCAL_STORE_NAME, window.localStorage);
 export const sessionStore = new Store(Config.SESSION_STORE_NAME, window.sessionStorage);
@@ -142,7 +148,7 @@ Router.addRoute(PathNameRegExp.FAVORITES_PAGE, () => {
 });
 
 function handleFilmDetailsModalEnter(_, regExpResult) {
-  const {filmID} = regExpResult.groups;
+  const filmID = regExpResult && regExpResult[FILM_ID_ARRAY_INDEX];
 
   if (!filmID) {
     Router.replace(PathName.NOT_FOUND_PAGE);
@@ -174,7 +180,10 @@ Router.addRoute(PathNameRegExp.FILM_DETAILS_MODAL, async (_, regExpResult) => aw
 Router.addRoute(PathNameRegExp.STATISTIC_PAGE, () => {
   document.title = PageTitle.STATISTIC_PAGE;
 
-  const periodRange = window.location.search.match(SearchRegExp.PERIOD) && window.location.search.match(SearchRegExp.PERIOD).groups && window.location.search.match(SearchRegExp.PERIOD).groups.periodRange;
+  const searchRegExpResult = window.location.search.match(SearchRegExp.PERIOD);
+
+  const periodRange = searchRegExpResult && searchRegExpResult[PERIOD_RANGE_ARRAY_INDEX];
+  console.log(periodRange);
   const periodFilteringFunction = (films) => filterFilmsByWatchingDate(films, periodRange);
 
   filmsModel.addStateHandler(filterHistoryFilms);
