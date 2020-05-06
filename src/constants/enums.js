@@ -1,6 +1,3 @@
-// Libraries
-import NamedRegExp from 'named-regexp-groups';
-
 export const RenderPosition = {
   START: `START`,
   END: `END`,
@@ -33,7 +30,7 @@ export const PathNameRegExp = {
   WATCHLIST_PAGE: /\/watchlist\/?$/,
   HISTORY_PAGE: /\/history\/?$/,
   FAVORITES_PAGE: /\/favorites\/?$/,
-  FILM_DETAILS_MODAL: new NamedRegExp(/\/films\/(?<filmID>[0-9]+)$/),
+  FILM_DETAILS_MODAL: /\/films\/([0-9]+)$/,
   STATISTIC_PAGE: /\/stats\/?$/,
   NOT_FOUND_PAGE: /\/404\/?$/
 };
@@ -46,10 +43,10 @@ export const TimePeriodName = {
 };
 
 export const SearchRegExp = {
-  SORTING: new NamedRegExp(/sorting=(?<sortingType>[a-z0-9]+)/),
+  SORTING: /sorting=([a-z0-9]+)/,
   SORTING_DATE: /sorting=date/,
   SORTING_RATING: /sorting=rating/,
-  PERIOD: new NamedRegExp(/period=(?<periodRange>[a-z0-9]+)/),
+  PERIOD: /period=([a-z0-9]+)/,
   PERIOD_TODAY: /period=today/,
   PERIOD_WEEK: /period=week/,
   PERIOD_MONTH: /period=month/,

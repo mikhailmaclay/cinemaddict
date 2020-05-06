@@ -1,5 +1,4 @@
 // Constants and utils
-import NamedRegExp from 'named-regexp-groups';
 import Config from './constants/config';
 import {
   Notification,
@@ -29,8 +28,6 @@ import API from './utils/api';
 import './styles.scss';
 import Provider from './utils/provider';
 import Store from './utils/store';
-
-window.NamedRegExp = NamedRegExp;
 
 const FILM_ID_ARRAY_INDEX = 1;
 const PERIOD_RANGE_ARRAY_INDEX = 1;
